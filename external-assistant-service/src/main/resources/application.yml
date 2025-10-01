@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: external-assistant-service
+
+
+server:
+  port: 8081

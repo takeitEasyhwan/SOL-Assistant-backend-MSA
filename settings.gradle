@@ -1,0 +1,6 @@
+rootProject.name = 'sinhan-assistant'
+
+include 'common-service'
+include 'internal-assistant-service'
+include 'external-assistant-service'
+include 'chart-similarity-service'

@@ -52,6 +52,7 @@ subprojects {
 
 		//jsch ssh
 		implementation 'com.github.mwiede:jsch:0.2.18'
+		annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 		
 		//HikariCP
 		implementation 'com.zaxxer:HikariCP:5.1.0'
@@ -86,4 +87,14 @@ project(':chart-similarity-service') {
 	dependencies {
 		implementation project(':common-service')
 	}
+}
+
+// Ensure common-service builds as a plain library (no bootJar/mainClass)
+project(':common-service') {
+    tasks.named('bootJar') {
+        enabled = false
+    }
+    tasks.named('jar') {
+        enabled = true
+    }
 }

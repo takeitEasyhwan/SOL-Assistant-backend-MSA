@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: chart-similarity-service
-
-server:
-  port: 8082

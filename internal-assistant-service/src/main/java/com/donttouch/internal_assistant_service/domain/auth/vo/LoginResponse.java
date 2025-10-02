@@ -1,5 +1,4 @@
-package com.donttouch.common_service.member.entity.response;
-
+package com.donttouch.internal_assistant_service.domain.auth.vo;
 
 import lombok.*;
 
@@ -9,5 +8,4 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class LoginResponse {
-
 }

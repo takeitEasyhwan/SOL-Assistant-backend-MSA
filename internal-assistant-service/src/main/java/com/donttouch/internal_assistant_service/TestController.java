@@ -15,10 +15,15 @@ public class TestController {
 
     private final MemberService memberService;
 
-
     @GetMapping("/hi")
     @Transactional
     public List<Member> hi() {
-        return memberService.findAllMembers();
+        List<Member> memberList= memberService.findAllMembers();
+        for (Member member : memberList) {
+            System.out.println(member.toString());
+        }
+        System.out.println("이게무슨일이오!");
+
+        return memberList;
     }
 }

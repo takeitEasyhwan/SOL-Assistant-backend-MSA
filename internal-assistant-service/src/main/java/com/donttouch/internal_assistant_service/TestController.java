@@ -15,7 +15,6 @@ public class TestController {
 
     private final MemberService memberService;
 
-
     @GetMapping("/hi")
     @Transactional
     public List<Member> hi() {

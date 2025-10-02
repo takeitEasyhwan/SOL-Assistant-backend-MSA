@@ -52,6 +52,7 @@ subprojects {
 
 		//jsch ssh
 		implementation 'com.github.mwiede:jsch:0.2.18'
+		annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 		
 		//HikariCP
 		implementation 'com.zaxxer:HikariCP:5.1.0'

@@ -17,6 +17,14 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+./src/main/resources/application.yml
+
+# SSH Keys and sensitive files
+src/main/resources/ssh/
+*.pem
+*.key
+
+
 ### IntelliJ IDEA ###
 .idea
 *.iws

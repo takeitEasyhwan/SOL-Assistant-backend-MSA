@@ -16,6 +16,26 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public List<Member> findAllMembers() {
+
+//        List<Member> members = new ArrayList<>();
+//        members.add(Member.builder()
+//                .id(UUID.randomUUID())
+//                .email("sdf@fasf.com")
+//                .createdAt(LocalDateTime.now())
+//                .password("fasdf")
+//                .updatedAt(LocalDateTime.now())
+//                .username("hisdf").build());
+//
+//
+//        members.add(Member.builder()
+//                .id(UUID.randomUUID())
+//                .email("sdavasdc@fasf.com")
+//                .createdAt(LocalDateTime.now())
+//                .password("vsdac")
+//                .updatedAt(LocalDateTime.now())
+//                .username("vsadcds").build());
+
+        System.out.println("hi");
         return memberRepository.findAll();
     }
 }

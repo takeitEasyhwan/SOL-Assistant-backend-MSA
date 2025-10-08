@@ -11,8 +11,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.donttouch.common_service",
 		"com.donttouch.internal_assistant_service"
 })
-@EntityScan(basePackages = "com.donttouch.common_service")
-@EnableJpaRepositories(basePackages = "com.donttouch.common_service")
+@EntityScan(basePackages = {
+		"com.donttouch.common_service",
+		"com.donttouch.internal_assistant_service"
+})
+@EnableJpaRepositories(basePackages = {
+		"com.donttouch.common_service",
+		"com.donttouch.internal_assistant_service"
+})
 public class InternalAssistantServiceApplication {
 
 	public static void main(String[] args) {

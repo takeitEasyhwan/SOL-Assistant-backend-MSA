@@ -1,7 +1,7 @@
 package com.donttouch.internal_assistant_service;
 
-import com.donttouch.common_service.member.entity.Member;
-import com.donttouch.common_service.member.service.MemberService;
+import com.donttouch.internal_assistant_service.domain.member.service.MemberService;
+import com.donttouch.internal_assistant_service.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ public class TestController {
     @GetMapping("/hi")
     @Transactional
     public List<Member> hi() {
-        List<Member> memberList= memberService.findAllMembers();
+        List<Member> memberList = memberService.findAllMembers();
         for (Member member : memberList) {
             System.out.println(member.toString());
         }

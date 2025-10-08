@@ -1,4 +1,4 @@
-package com.donttouch.common_service.member.entity;
+package com.donttouch.internal_assistant_service.domain.member.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 
 @Entity
-@Table(name = "member")
+@Table(name = "members")
 @Getter
 @Setter
 @NoArgsConstructor

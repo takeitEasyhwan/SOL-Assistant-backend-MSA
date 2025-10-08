@@ -36,21 +36,18 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // ✅ 로그인, 회원가입 등은 인증 없이 허용
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/hi",
                                 "/api/v1/login",
                                 "/api/v1/register"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // ✅ JWT 필터 추가
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                // ✅ 예외 처리 핸들러
                 .exceptionHandling(ex -> {
                     ex.authenticationEntryPoint(jwtAuthenticationFailEntryPoint);
                     ex.accessDeniedHandler(jwtAccessDeniedHandler);

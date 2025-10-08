@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 @Slf4j
 @Component
@@ -27,30 +28,50 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // ✅ JWT 필터를 건너뛸 URI 설정
+        String uri = request.getRequestURI();
+        log.info("[JwtFilter] Incoming request URI: {}", uri);
+
+        // 모든 헤더 출력 (디버깅용)
+        log.info("[JwtFilter] --- Request headers ---");
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String name = headerNames.nextElement();
+            String value = request.getHeader(name);
+            log.info("[JwtFilter] {} = {}", name, value);
+        }
+        log.info("[JwtFilter] ---------------------");
+
         if (isRequestPassURI(request)) {
+            log.info("[JwtFilter] Pass URI (no auth required): {}", uri);
             filterChain.doFilter(request, response);
             return;
         }
 
         String accessToken = getTokenFromHeader(request, ACCESS_HEADER);
+        log.info("[JwtFilter] Access Token from header: {}", accessToken != null ? "[PROVIDED]" : "[MISSING]");
 
         if (!StringUtils.hasText(accessToken)) {
-            // 토큰이 없으면 그냥 통과 (로그인, 공개 API 등)
-            filterChain.doFilter(request, response);
+            log.warn("[JwtFilter] Access Token missing for URI: {}", uri);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Token is missing");
             return;
         }
 
-        try {
-            // 토큰이 유효하면 인증 처리
-            if (tokenProvider.validate(accessToken) && !tokenProvider.validateExpire(accessToken)) {
-                SecurityContextHolder.getContext()
-                        .setAuthentication(tokenProvider.getAuthentication(accessToken));
-            }
-        } catch (Exception e) {
-            // JWT 파싱 오류 발생 시 로그 남기고 요청 통과 (또는 필요 시 401 응답)
-            log.warn("JWT 검증 실패: {}", e.getMessage());
+        if (!tokenProvider.isTokenValid(accessToken)) {
+            log.warn("[JwtFilter] Token signature invalid or malformed for URI: {}", uri);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Token");
+            return;
         }
+
+        if (tokenProvider.isTokenExpired(accessToken)) {
+            log.warn("[JwtFilter] Token expired for URI: {}", uri);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Expired Token");
+            return;
+        }
+
+        // 인증 성공
+        SecurityContextHolder.getContext()
+                .setAuthentication(tokenProvider.getAuthentication(accessToken));
+        log.info("[JwtFilter] Authentication success for URI: {}", uri);
 
         filterChain.doFilter(request, response);
     }
@@ -64,20 +85,15 @@ public class JwtFilter extends OncePerRequestFilter {
                 uri.equals("/favicon.ico") ||
                 uri.startsWith("/swagger-ui") ||
                 uri.startsWith("/v3/api-docs") ||
-                uri.equals("/hi") ||
                 uri.equals("/api/v1/register") ||
                 uri.equals("/api/v1/login");
     }
 
     private String getTokenFromHeader(HttpServletRequest request, String headerName) {
         String token = request.getHeader(headerName);
-        if (StringUtils.hasText(token)) {
-            // Bearer 접두어 제거 가능
-            if (token.startsWith("Bearer ")) {
-                return token.substring(7);
-            }
-            return token;
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+            return token.substring(7);
         }
-        return null;
+        return token;
     }
 }

@@ -42,7 +42,7 @@ public class TokenProvider {
         this.secretkey = new SecretKeySpec(keyBytes, "HmacSHA256");
     }
 
-    /** ✅ JWT 발급 */
+    /** JWT 발급 */
     public TokenResponse createToken(String authId, String role) {
         long now = System.currentTimeMillis();
 
@@ -70,7 +70,7 @@ public class TokenProvider {
         return TokenResponse.of(accessToken, refreshToken);
     }
 
-    /** ✅ Authentication 추출 */
+    /** Authentication 추출 */
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretkey)
@@ -87,7 +87,28 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(authId, null, authorities);
     }
 
-    /** ✅ 토큰 유효성 검사 */
+    /** 토큰 서명/구조 검증 */
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(secretkey).build().parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            return true; // 만료 여부는 별도 체크
+        } catch (MalformedJwtException | SecurityException | UnsupportedJwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    /** 토큰 만료 여부 체크 */
+    public boolean isTokenExpired(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(secretkey).build().parseClaimsJws(token);
+            return false; // 만료 아님
+        } catch (ExpiredJwtException e) {
+            return true; // 만료됨
+        }
+    }
+    /** JWT 유효성 체크 (서명 + 구조 체크) */
     public boolean validate(String token) {
         try {
             Jwts.parserBuilder()
@@ -103,16 +124,4 @@ public class TokenProvider {
         }
     }
 
-    /** ✅ 만료 여부만 체크 */
-    public boolean validateExpire(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secretkey)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (ExpiredJwtException e) {
-            return false;
-        }
-    }
 }

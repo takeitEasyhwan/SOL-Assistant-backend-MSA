@@ -2,6 +2,7 @@ package com.donttouch.common_service.auth.service;
 
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.entity.UserAuth;
+import com.donttouch.common_service.auth.entity.vo.RegisterRequest;
 import com.donttouch.common_service.auth.jwt.info.RefreshToken;
 import com.donttouch.common_service.auth.jwt.info.TokenProvider;
 import com.donttouch.common_service.auth.jwt.info.TokenResponse;
@@ -68,22 +69,22 @@ public class AuthService {
         return tokenResponse;
     }
 
-    /** 회원 없으면 생성 후 반환 */
-    @Transactional
-    public UserAuth saveIfNonExist(String authId, String rawPassword) {
-        UserAuth userAuth = authRepository.findByAuthId(authId);
-        if (userAuth != null) return userAuth;
-
-        UserAuth newUser = UserAuth.builder()
-                .userAuthId(String.valueOf(UUID.randomUUID()))
-                .authId(authId)
-                .user(userAuth.getUser())
-                .password(passwordEncoder.encode(rawPassword))
-                .lastLogin(LocalDateTime.now())
-                .build();
-
-        return authRepository.save(newUser);
-    }
+//    /** 회원 없으면 생성 후 반환 */
+//    @Transactional
+//    public UserAuth saveIfNonExist(String authId, String rawPassword) {
+//        UserAuth userAuth = authRepository.findByAuthId(authId);
+//        if (userAuth != null) return userAuth;
+//
+//        UserAuth newUser = UserAuth.builder()
+//                .userAuthId(String.valueOf(UUID.randomUUID()))
+//                .authId(authId)
+//                .user(userAuth.getUser())
+//                .password(passwordEncoder.encode(rawPassword))
+//                .lastLogin(LocalDateTime.now())
+//                .build();
+//
+//        return authRepository.save(newUser);
+//    }
 
     /** Refresh Token 저장 */
     private void saveRefreshToken(UserAuth userAuth, TokenResponse tokenResponse, String role) {
@@ -107,46 +108,41 @@ public class AuthService {
             throw new ReissueFailException();
         }
 
-        String role = "ROLE_USER";
-        TokenResponse tokenResponse = tokenProvider.createToken(findToken.getAuthId(), role);
+        TokenResponse tokenResponse = tokenProvider.createToken(findToken.getAuthId(), DEFAULT_ROLE);
         saveRefreshToken(UserAuth.builder()
                 .userAuthId(findToken.getUserId())
                 .authId(findToken.getAuthId())
-                .build(), tokenResponse, role);
+                .build(), tokenResponse, DEFAULT_ROLE);
 
         return tokenResponse;
     }
     /** 회원가입 + 토큰 발급 */
     @Transactional
-    public TokenResponse register(String authId, String rawPassword) {
-        System.out.println("[register] authId: " + authId);
-
-        // 이미 존재하는지 확인
-        UserAuth existingUser = authRepository.findByAuthId(authId);
+    public TokenResponse register(RegisterRequest registerRequest) {
+        UserAuth existingUser = authRepository.findByAuthId(registerRequest.getAuthId());
         if (existingUser != null) {
             throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
         }
 
-        // 1️⃣ User 엔티티 생성
         User user = User.builder()
-                .id(UUID.randomUUID().toString()) // PK
+                .id(UUID.randomUUID().toString())
+                .name(registerRequest.getName())
+                .phone(registerRequest.getPhone())
+                .investmentType(User.InvestmentType.HOLD)
                 .build();
-        userRepository.save(user); // UserRepository 필요
+        userRepository.save(user);
 
-        // 2️⃣ UserAuth 생성
         UserAuth newUserAuth = UserAuth.builder()
                 .userAuthId(UUID.randomUUID().toString())
-                .authId(authId)
-                .password(passwordEncoder.encode(rawPassword))
+                .authId(registerRequest.getAuthId())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .lastLogin(LocalDateTime.now())
-                .user(user) // FK 연결
+                .user(user)
                 .build();
 
         authRepository.save(newUserAuth);
-        System.out.println("[register] new userAuth saved");
 
-        // 3️⃣ 토큰 발급
-        TokenResponse tokenResponse = tokenProvider.createToken(authId, DEFAULT_ROLE);
+        TokenResponse tokenResponse = tokenProvider.createToken(registerRequest.getAuthId(), DEFAULT_ROLE);
         saveRefreshToken(newUserAuth, tokenResponse, DEFAULT_ROLE);
 
         return tokenResponse;

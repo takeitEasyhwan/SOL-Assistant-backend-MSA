@@ -81,12 +81,11 @@ public class JwtFilter extends OncePerRequestFilter {
         return uri.equals("/") ||
                 uri.startsWith("/api/auth") ||
                 uri.startsWith("/api/exception") ||
-                uri.startsWith("/api/fortune-cookie") ||
                 uri.equals("/favicon.ico") ||
                 uri.startsWith("/swagger-ui") ||
                 uri.startsWith("/v3/api-docs") ||
-                uri.equals("/api/v1/register") ||
-                uri.equals("/api/v1/login");
+                uri.equals("/api/v1/internal/register") ||
+                uri.equals("/api/v1/internal/login");
     }
 
     private String getTokenFromHeader(HttpServletRequest request, String headerName) {

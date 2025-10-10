@@ -81,7 +81,7 @@ public class JwtFilter extends OncePerRequestFilter {
         return uri.equals("/") ||
                 uri.startsWith("/api/auth") ||
                 uri.startsWith("/api/exception") ||
-                uri.startsWith("/api/v1/external") ||
+                uri.startsWith("/api/fortune-cookie") ||
                 uri.equals("/favicon.ico") ||
                 uri.startsWith("/swagger-ui") ||
                 uri.startsWith("/v3/api-docs") ||

@@ -1,0 +1,14 @@
+package com.donttouch.external_assistant_service.domain.chart.repository;
+
+import com.donttouch.common_service.stock.entity.Stock;
+import com.donttouch.external_assistant_service.domain.chart.entity.DailyStockCharts;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface DailyStockChartsRepository extends JpaRepository<DailyStockCharts, String> {
+    List<DailyStockCharts> findByStockOrderByCurrentDayDesc(Stock stock);
+
+    Optional<DailyStockCharts> findTopByStockOrderByCurrentDayDesc(Stock stock);
+}

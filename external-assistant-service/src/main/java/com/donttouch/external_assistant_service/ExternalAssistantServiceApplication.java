@@ -9,11 +9,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
-		"com.donttouch.common_service",
-		"com.donttouch.external_assistant_service"
+        "com.donttouch.common_service",
+        "com.donttouch.external_assistant_service"
 })
-@EntityScan(basePackages = "com.donttouch.common_service")
-@EnableJpaRepositories(basePackages = "com.donttouch.common_service")
+@EntityScan(basePackages = {
+        "com.donttouch.common_service",
+        "com.donttouch.external_assistant_service"
+})
+@EnableJpaRepositories(basePackages = {
+        "com.donttouch.common_service",
+        "com.donttouch.external_assistant_service"
+})
 public class ExternalAssistantServiceApplication {
 
 	public static void main(String[] args) {

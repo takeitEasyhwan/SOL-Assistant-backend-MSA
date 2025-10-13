@@ -34,4 +34,6 @@ public class Stock {
     @Column(name = "management")
     private Boolean management;
 
+    @Column(name = "delisting")
+    private Boolean delisting;
 }

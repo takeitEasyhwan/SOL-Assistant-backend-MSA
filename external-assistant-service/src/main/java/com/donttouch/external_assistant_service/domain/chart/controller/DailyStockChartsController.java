@@ -24,8 +24,12 @@ public class DailyStockChartsController {
 
     @GetMapping("/{symbol}/price")
     public ResponseEntity<DailyPriceResponse> getPreviousClosePrice(@PathVariable String symbol) {
-        Double closePrice = dailyStockChartsService.getPreviousClosePrice(symbol);
-        return ResponseEntity.ok(DailyPriceResponse.of(symbol,closePrice));
+        return ResponseEntity.ok(dailyStockChartsService.getPreviousClosePrice(symbol));
+    }
+
+    @GetMapping("/{symbol}/lastPrice")
+    public ResponseEntity<DailyPriceResponse> getPrePreviousClosePrice(@PathVariable String symbol) {
+        return ResponseEntity.ok(dailyStockChartsService.getPrePreviousClosePrice(symbol));
     }
 
     @GetMapping("/{symbol}/stockRisk")
@@ -33,6 +37,4 @@ public class DailyStockChartsController {
         StockRiskResponse response = dailyStockChartsService.getStockRisk(symbol);
         return ResponseEntity.ok(response);
     }
-
-
 }

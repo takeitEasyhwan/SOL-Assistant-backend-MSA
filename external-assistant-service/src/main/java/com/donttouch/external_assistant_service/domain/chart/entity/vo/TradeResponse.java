@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @ToString
 public class TradeResponse {
     private String userTradeId;
-    private String userId;
     private String stockId;
+    private String userId;
     private LocalDateTime tradeTs;
     private Double quantity;
     private Double price;

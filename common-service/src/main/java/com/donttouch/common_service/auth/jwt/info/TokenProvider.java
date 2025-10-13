@@ -43,7 +43,7 @@ public class TokenProvider {
     }
 
     /** JWT 발급 */
-    public TokenResponse createToken(String authId, String role) {
+    public TokenResponse createToken(String userUuid, String authId, String role) {
         long now = System.currentTimeMillis();
 
         Date accessValidity = new Date(now + accessTokenValidityMilliSeconds);
@@ -52,6 +52,7 @@ public class TokenProvider {
         Map<String, Object> claims = new HashMap<>();
         claims.put(AUTH_ID, authId);
         claims.put(AUTH_ROLE, role);
+        claims.put("USER_ID", userUuid);
 
         String accessToken = Jwts.builder()
                 .setClaims(claims)

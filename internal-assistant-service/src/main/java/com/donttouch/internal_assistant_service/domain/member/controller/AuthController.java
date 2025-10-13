@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/internal")
 public class AuthController {
 
     private final AuthService authService;
@@ -42,7 +42,7 @@ public class AuthController {
     public ResponseEntity<LoginResponse> register(@RequestBody RegisterRequest registerRequest) {
         TokenResponse tokenResponse = authService.register(registerRequest);
         return ResponseEntity.ok(
-                LoginResponse.of(tokenResponse.accessToken(), tokenResponse.refreshToken())
+LoginResponse.of(tokenResponse.accessToken(), tokenResponse.refreshToken())
         );
     }
 

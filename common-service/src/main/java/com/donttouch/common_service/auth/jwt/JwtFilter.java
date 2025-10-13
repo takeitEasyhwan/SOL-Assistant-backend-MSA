@@ -85,6 +85,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 uri.startsWith("/swagger-ui") ||
                 uri.startsWith("/v3/api-docs") ||
                 uri.equals("/api/v1/internal/register") ||
+                uri.equals("/api/v1/internal/hi") ||
                 uri.equals("/api/v1/internal/login");
     }
 

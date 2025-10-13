@@ -3,6 +3,7 @@ package com.donttouch.external_assistant_service.domain.chart.controller;
 import com.donttouch.external_assistant_service.domain.chart.entity.DailyStockCharts;
 import com.donttouch.external_assistant_service.domain.chart.entity.vo.DailyPriceResponse;
 import com.donttouch.external_assistant_service.domain.chart.entity.vo.DailyStockChartsResponse;
+import com.donttouch.external_assistant_service.domain.chart.entity.vo.StockRiskResponse;
 import com.donttouch.external_assistant_service.domain.chart.service.DailyStockChartsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,4 +33,13 @@ public class DailyStockChartsController {
         Double closePrice = dailyStockChartsService.getPreviousClosePrice(symbol);
         return ResponseEntity.ok(DailyPriceResponse.of(symbol,closePrice));
     }
+
+    @GetMapping("/{symbol}/stockRisk")
+    public ResponseEntity<StockRiskResponse> getStockRisk(@PathVariable String symbol) {
+        StockRiskResponse response = dailyStockChartsService.getStockRisk(symbol);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }

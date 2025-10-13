@@ -4,6 +4,7 @@ import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.repository.StockRepository;
 import com.donttouch.external_assistant_service.domain.chart.entity.DailyStockCharts;
 import com.donttouch.external_assistant_service.domain.chart.entity.vo.DailyStockChartsResponse;
+import com.donttouch.external_assistant_service.domain.chart.entity.vo.StockRiskResponse;
 import com.donttouch.external_assistant_service.domain.chart.exception.ChartDataNotFoundException;
 import com.donttouch.external_assistant_service.domain.chart.exception.ErrorMessage;
 import com.donttouch.external_assistant_service.domain.chart.exception.StockNotFoundException;
@@ -37,5 +38,12 @@ public class DailyStockChartsService {
                 .orElseThrow(() -> new ChartDataNotFoundException(ErrorMessage.CHART_DATA_NOT_FOUND));
 
         return latest.getClosePrice();
+    }
+
+    public StockRiskResponse getStockRisk(String symbol) {
+        Stock stock = stockRepository.findBySymbol(symbol)
+                .orElseThrow(() -> new StockNotFoundException(ErrorMessage.STOCK_NOT_FOUND));
+
+        return StockRiskResponse.fromEntity(stock);
     }
 }

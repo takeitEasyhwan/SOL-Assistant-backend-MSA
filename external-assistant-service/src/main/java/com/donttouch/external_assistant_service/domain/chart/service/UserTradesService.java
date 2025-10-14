@@ -37,7 +37,7 @@ public class UserTradesService {
 
         UserTrades trade = UserTrades.builder()
                 .userTradeId(tradeId)
-                .userId(user)
+                .user(user)
                 .stock(stock)
                 .tradeTs(now)
                 .quantity(request.getQuantity())
@@ -71,7 +71,7 @@ public class UserTradesService {
 
         UserTrades trade = UserTrades.builder()
                 .userTradeId(tradeId)
-                .userId(user)
+                .user(user)
                 .stock(stock)
                 .tradeTs(now)
                 .quantity(request.getQuantity())

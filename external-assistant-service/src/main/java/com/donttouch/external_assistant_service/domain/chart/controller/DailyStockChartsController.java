@@ -37,4 +37,6 @@ public class DailyStockChartsController {
         StockRiskResponse response = dailyStockChartsService.getStockRisk(symbol);
         return ResponseEntity.ok(response);
     }
+
+
 }

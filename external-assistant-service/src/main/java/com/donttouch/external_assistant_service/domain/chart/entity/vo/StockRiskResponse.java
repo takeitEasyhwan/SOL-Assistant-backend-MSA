@@ -16,7 +16,7 @@ public class StockRiskResponse {
 
     public static StockRiskResponse fromEntity(Stock stock) {
         return StockRiskResponse.builder()
-                .symbol(stock.getId())
+                .symbol(stock.getSymbol())
                 .stockName(stock.getStockName())
                 .management(stock.getManagement())
                 .delisting(stock.getDelisting())

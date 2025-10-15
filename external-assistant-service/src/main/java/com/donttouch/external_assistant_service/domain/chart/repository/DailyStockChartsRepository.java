@@ -1,7 +1,7 @@
 package com.donttouch.external_assistant_service.domain.chart.repository;
 
+import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
-import com.donttouch.external_assistant_service.domain.chart.entity.DailyStockCharts;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

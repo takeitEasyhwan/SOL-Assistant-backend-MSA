@@ -1,7 +1,10 @@
-package com.donttouch.external_assistant_service.domain.chart.entity;
+package com.donttouch.internal_assistant_service.domain.member.entity;
 
-import lombok.*;
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Getter

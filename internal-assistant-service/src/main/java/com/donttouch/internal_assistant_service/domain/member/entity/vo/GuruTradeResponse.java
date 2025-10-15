@@ -1,8 +1,8 @@
-package com.donttouch.external_assistant_service.domain.chart.entity.vo;
+package com.donttouch.internal_assistant_service.domain.member.entity.vo;
 
 import com.donttouch.common_service.auth.entity.vo.InvestmentType;
 import com.donttouch.common_service.stock.entity.Stock;
-import com.donttouch.external_assistant_service.domain.chart.entity.GuruTradeData;
+import com.donttouch.internal_assistant_service.domain.member.entity.GuruTradeData;
 import lombok.*;
 
 import java.util.List;

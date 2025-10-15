@@ -1,4 +1,4 @@
-package com.donttouch.external_assistant_service.domain.chart.repository;
+package com.donttouch.internal_assistant_service.domain.member.repository;
 
 import com.donttouch.common_service.guru.entity.GuruSwing;
 import org.springframework.data.jpa.repository.JpaRepository;

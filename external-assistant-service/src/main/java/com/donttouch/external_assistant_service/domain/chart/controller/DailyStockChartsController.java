@@ -1,7 +1,7 @@
 package com.donttouch.external_assistant_service.domain.chart.controller;
 
 import com.donttouch.external_assistant_service.domain.chart.entity.vo.DailyPriceResponse;
-import com.donttouch.external_assistant_service.domain.chart.entity.vo.DailyStockChartsResponse;
+import com.donttouch.common_service.stock.entity.vo.DailyStockChartsResponse;
 import com.donttouch.external_assistant_service.domain.chart.entity.vo.StockRiskResponse;
 import com.donttouch.external_assistant_service.domain.chart.service.DailyStockChartsService;
 import lombok.RequiredArgsConstructor;

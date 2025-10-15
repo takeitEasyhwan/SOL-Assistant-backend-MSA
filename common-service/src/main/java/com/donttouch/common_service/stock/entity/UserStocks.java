@@ -1,9 +1,15 @@
-package com.donttouch.external_assistant_service.domain.chart.entity;
+package com.donttouch.common_service.stock.entity;
 
 import com.donttouch.common_service.auth.entity.User;
-import com.donttouch.common_service.stock.entity.Stock;
 import jakarta.persistence.*;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 @Entity
 @Table(name = "user_stocks")
 public class UserStocks {

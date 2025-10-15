@@ -1,10 +1,10 @@
 package com.donttouch.external_assistant_service.domain.chart.service;
 
+import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.repository.StockRepository;
-import com.donttouch.external_assistant_service.domain.chart.entity.DailyStockCharts;
 import com.donttouch.external_assistant_service.domain.chart.entity.vo.DailyPriceResponse;
-import com.donttouch.external_assistant_service.domain.chart.entity.vo.DailyStockChartsResponse;
+import com.donttouch.common_service.stock.entity.vo.DailyStockChartsResponse;
 import com.donttouch.external_assistant_service.domain.chart.entity.vo.StockRiskResponse;
 import com.donttouch.external_assistant_service.domain.chart.exception.ChartDataNotFoundException;
 import com.donttouch.external_assistant_service.domain.chart.exception.ErrorMessage;

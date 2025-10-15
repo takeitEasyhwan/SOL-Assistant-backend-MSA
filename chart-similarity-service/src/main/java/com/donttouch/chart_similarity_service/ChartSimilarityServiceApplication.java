@@ -11,8 +11,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.donttouch.common_service",
 		"com.donttouch.chart_similarity_service"
 })
-@EntityScan(basePackages = "com.donttouch.common_service")
-@EnableJpaRepositories(basePackages = "com.donttouch.common_service")
+@EntityScan(basePackages = {
+		"com.donttouch.common_service",
+		"com.donttouch.chart_similarity_service"
+})
+@EnableJpaRepositories(basePackages = {
+		"com.donttouch.common_service",
+		"com.donttouch.chart_similarity_service"
+})
 public class ChartSimilarityServiceApplication {
 
 	public static void main(String[] args) {

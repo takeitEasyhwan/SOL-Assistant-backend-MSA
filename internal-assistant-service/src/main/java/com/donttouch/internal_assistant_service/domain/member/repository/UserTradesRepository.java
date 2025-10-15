@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -24,5 +25,16 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
     """)
     List<GuruTradeData> aggregateDailyTradeStats(@Param("guruUserIds") List<String> guruUserIds, @Param("stockId") String stockId);
 
-
+    @Query("""
+        SELECT t
+        FROM UserTrades t
+        WHERE t.user.id = :userId
+          AND t.tradeTs BETWEEN :start AND :end
+        ORDER BY t.tradeTs ASC
+    """)
+    List<UserTrades> findByUserIdAndTradeTsBetween(
+            @Param("userId") String userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
 }

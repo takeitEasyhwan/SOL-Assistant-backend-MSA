@@ -6,6 +6,7 @@ import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.repository.StockRepository;
 import com.donttouch.common_service.stock.entity.UserStocks;
+import com.donttouch.internal_assistant_service.domain.member.entity.UserAssets;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.MyStockResponse;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeRequest;
@@ -16,6 +17,7 @@ import com.donttouch.internal_assistant_service.domain.member.exception.StockNot
 import com.donttouch.internal_assistant_service.domain.member.exception.UserNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.repository.DailyStockChartsRepository;
 import com.donttouch.common_service.stock.repository.UserStocksRepository;
+import com.donttouch.internal_assistant_service.domain.member.repository.UserAssetsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserTradesRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,7 @@ public class UserTradesService {
     private final StockRepository stockRepository;
     private final UserRepository userRepository;
     private final UserStocksRepository userStocksRepository;
-    private final DailyStockChartsRepository dailyStockChartsRepository;
+    private final UserAssetsRepository userAssetsRepository;
 
     @Transactional
     public TradeResponse buy(TradeRequest request) {
@@ -80,7 +82,27 @@ public class UserTradesService {
             userStock.setQuantity(newQty);
             userStock.setCostBasis(newAvg);
 
-            userStocksRepository.save(userStock);
+//            userStocksRepository.save(userStock);
+        }
+
+        //asset
+        double totalBuyCost = request.getQuantity() * request.getPrice();
+        UserAssets userAssets = userAssetsRepository.findByUserId(user.getId())
+                .orElse(null);
+
+        if (userAssets == null) {
+            userAssets = UserAssets.builder()
+                    .userAssetId(UUID.randomUUID().toString())
+                    .user(user)
+                    .principal(1_250_300.0)
+                    .totalBalance(1_250_300.0 - totalBuyCost)
+                    .build();
+
+            userAssetsRepository.save(userAssets);
+        }
+        else {
+            userAssets.setTotalBalance(userAssets.getTotalBalance() - totalBuyCost);
+//            userAssetsRepository.save(userAssets);
         }
 
         return TradeResponse.builder()
@@ -129,39 +151,5 @@ public class UserTradesService {
                 .build();
     }
 
-    public List<MyStockResponse> getMyStocks(String userId) {
-        List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
 
-        return userStocks.stream()
-                .map(us -> {
-                    Stock stock = us.getStock();
-
-                    List<DailyStockCharts> chartList =
-                            dailyStockChartsRepository.findByStockOrderByCurrentDayDesc(stock);
-
-                    if (chartList.size() < 2) {
-                        throw new ChartDataNotFoundException(ErrorMessage.CHART_DATA_NOT_FOUND);
-                    }
-
-                    Double currentPrice = chartList.get(0).getClosePrice();
-                    Double previousClose = chartList.get(1).getClosePrice();
-                    Double changeRate = ((currentPrice - previousClose) / previousClose) * 100;
-
-                    Double diff = currentPrice - us.getCostBasis();
-                    Double profit = (diff / us.getCostBasis()) * 100;
-
-                    return MyStockResponse.builder()
-                            .stockName(stock.getStockName())
-                            .symbol(stock.getSymbol())
-                            .currentPrice(currentPrice)
-                            .changeRate(Math.round(changeRate * 100) / 100.0)
-                            .market(stock.getMarket())
-                            .quantity(us.getQuantity())
-                            .costBasis(us.getCostBasis())
-                            .diff(diff)
-                            .profit(Math.round(profit * 100) / 100.0)
-                            .build();
-                })
-                .collect(Collectors.toList());
-    }
 }

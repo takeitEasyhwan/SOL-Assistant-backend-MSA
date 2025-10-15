@@ -16,18 +16,11 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/internal/member")
+@RequestMapping("/api/v1/internal/member/trade")
 public class UserTradesController {
     private final UserTradesService userTradesService;
 
-    @GetMapping("/my-stock")
-    @AssignCurrentMemberId
-    public List<MyStockResponse> getMyStocks(CurrentMemberIdRequest currentUser) {
-        List<MyStockResponse> stockResponses = userTradesService.getMyStocks(currentUser.getUserUuid());
-        return stockResponses;
-    }
-
-    @PostMapping("/trade/buy")
+    @PostMapping("/buy")
     @AssignCurrentMemberId
     public ResponseEntity<TradeResponse> buyStock(CurrentMemberIdRequest currentUser, @RequestBody TradeRequest request) {
         request.setUserId(currentUser.getUserUuid());
@@ -37,7 +30,7 @@ public class UserTradesController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/trade/sell")
+    @PostMapping("/sell")
     @AssignCurrentMemberId
     public ResponseEntity<TradeResponse> sellStock(CurrentMemberIdRequest currentUser, @RequestBody TradeRequest request) {
         request.setUserId(currentUser.getUserUuid());

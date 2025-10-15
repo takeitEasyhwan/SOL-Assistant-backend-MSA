@@ -2,7 +2,6 @@ package com.donttouch.external_assistant_service.domain.chart.exception.handler;
 
 import com.donttouch.external_assistant_service.domain.chart.exception.ChartDataNotFoundException;
 import com.donttouch.external_assistant_service.domain.chart.exception.StockNotFoundException;
-import com.donttouch.external_assistant_service.domain.chart.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,16 +23,6 @@ public class StockExceptionHandler {
 
     @ExceptionHandler(ChartDataNotFoundException.class)
     public ResponseEntity<Object> handlerChartDataNotFoundException(ChartDataNotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(Map.of(
-                        "error", e.getMessage(),
-                        "status", HttpStatus.NOT_FOUND.value()
-                ));
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of(

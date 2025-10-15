@@ -1,4 +1,5 @@
 package com.donttouch.internal_assistant_service.domain.member.exception.handler;
+import com.donttouch.internal_assistant_service.domain.member.exception.AssetNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.exception.ChartDataNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.exception.StockNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.exception.UserNotFoundException;
@@ -33,6 +34,16 @@ public class StockExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "error", e.getMessage(),
+                        "status", HttpStatus.NOT_FOUND.value()
+                ));
+    }
+
+    @ExceptionHandler(AssetNotFoundException.class)
+    public ResponseEntity<Object> handleAssetNotFoundException(AssetNotFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of(

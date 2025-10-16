@@ -1,4 +1,4 @@
-package com.donttouch.internal_assistant_service.domain.member.entity;
+package com.donttouch.internal_assistant_service.domain.expert.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "guru_hold")
+@Table(name = "guru_swing")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GuruHold {
+public class GuruSwing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

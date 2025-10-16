@@ -1,6 +1,6 @@
 package com.donttouch.internal_assistant_service.domain.member.repository;
 
-import com.donttouch.internal_assistant_service.domain.member.entity.GuruTradeData;
+import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface UserTradesRepository extends JpaRepository<UserTrades, String> {
     @Query("""
-        SELECT new com.donttouch.internal_assistant_service.domain.member.entity.GuruTradeData(
+        SELECT new com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData(
             t.tradeTs,
             SUM(CASE WHEN t.side = 'BUY' THEN t.quantity ELSE 0 END),
             SUM(CASE WHEN t.side = 'SELL' THEN t.quantity ELSE 0 END)
@@ -37,4 +37,6 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    List<UserTrades> findByUserId(String userId);
 }

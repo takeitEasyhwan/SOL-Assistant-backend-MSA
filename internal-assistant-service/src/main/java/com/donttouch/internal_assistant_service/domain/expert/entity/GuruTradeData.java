@@ -1,4 +1,4 @@
-package com.donttouch.internal_assistant_service.domain.member.entity;
+package com.donttouch.internal_assistant_service.domain.expert.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

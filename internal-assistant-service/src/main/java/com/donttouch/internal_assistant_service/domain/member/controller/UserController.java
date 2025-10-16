@@ -2,10 +2,7 @@ package com.donttouch.internal_assistant_service.domain.member.controller;
 
 import com.donttouch.common_service.global.aop.AssignCurrentMemberId;
 import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.MyStockResponse;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeMoneyResponse;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeProfitResponse;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeSectorResponse;
+import com.donttouch.internal_assistant_service.domain.member.entity.vo.*;
 import com.donttouch.internal_assistant_service.domain.member.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,9 +28,17 @@ public class UserController {
         return stockResponses;
     }
 
-    @GetMapping("/trade-record")
-    public void tradeRecord() {
+    @GetMapping("/trade-profit/trade-type")
+    @AssignCurrentMemberId
+    public TradeTypeResponse tradeProfitTradeInfo(CurrentMemberIdRequest currentUser) {
+        TradeTypeResponse tradeTypeResponse = userService.getTradeType(currentUser.getUserUuid());
+        return tradeTypeResponse;
+    }
 
+    @GetMapping("/trade-record")
+    @AssignCurrentMemberId
+    public HoldingPeriodResponse getTradeRecord(CurrentMemberIdRequest currentUser) {
+        return userService.getTradeRecord(currentUser.getUserUuid());
     }
 
     @GetMapping("/trade-sector")
@@ -70,8 +74,4 @@ public class UserController {
         return userService.getTradeMoney(currentUser.getUserUuid());
     }
 
-    @GetMapping("/trade-profit/trade-info")
-    public void tradeProfitTradeInfo(@PathVariable LocalDateTime dateTime) {
-
-    }
 }

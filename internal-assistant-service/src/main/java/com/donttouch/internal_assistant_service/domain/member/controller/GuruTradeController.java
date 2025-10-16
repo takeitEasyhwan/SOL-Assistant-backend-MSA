@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/a")
-//@RequestMapping("/api/v1/internal/member/guruTrade")
+@RequestMapping("/api/v1/internal/member/guruTrade")
 public class GuruTradeController {
     private final GuruTradeService guruTradeService;
 

@@ -1,6 +1,6 @@
-package com.donttouch.internal_assistant_service.domain.member.repository;
+package com.donttouch.internal_assistant_service.domain.expert.repository;
 
-import com.donttouch.internal_assistant_service.domain.member.entity.GuruDay;
+import com.donttouch.internal_assistant_service.domain.expert.entity.GuruDay;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,8 +1,8 @@
-package com.donttouch.internal_assistant_service.domain.member.controller;
+package com.donttouch.internal_assistant_service.domain.expert.controller;
 
 import com.donttouch.common_service.auth.entity.vo.InvestmentType;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.GuruTradeResponse;
-import com.donttouch.internal_assistant_service.domain.member.service.GuruTradeService;
+import com.donttouch.internal_assistant_service.domain.expert.entity.vo.GuruTradeResponse;
+import com.donttouch.internal_assistant_service.domain.expert.service.GuruTradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,14 +1,14 @@
-package com.donttouch.internal_assistant_service.domain.member.service;
+package com.donttouch.internal_assistant_service.domain.expert.service;
 
 import com.donttouch.common_service.auth.entity.vo.InvestmentType;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.repository.StockRepository;
 import com.donttouch.common_service.stock.repository.UserStocksRepository;
-import com.donttouch.internal_assistant_service.domain.member.entity.GuruTradeData;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.GuruTradeResponse;
+import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
+import com.donttouch.internal_assistant_service.domain.expert.entity.vo.GuruTradeResponse;
 import com.donttouch.internal_assistant_service.domain.member.exception.ErrorMessage;
 import com.donttouch.internal_assistant_service.domain.member.exception.StockNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.repository.GuruDayTradeRepository;
+import com.donttouch.internal_assistant_service.domain.expert.repository.GuruDayTradeRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserTradesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,9 +1,13 @@
 package com.donttouch.internal_assistant_service.domain.member.service;
 
+import com.donttouch.common_service.auth.entity.User;
+import com.donttouch.common_service.auth.repository.UserRepository;
+import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
 import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.entity.UserStocks;
 import com.donttouch.common_service.stock.repository.UserStocksRepository;
+import com.donttouch.internal_assistant_service.domain.member.entity.HoldingPeriodDistribution;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserAssets;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.*;
@@ -11,19 +15,17 @@ import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.exception.AssetNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.exception.ChartDataNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.exception.ErrorMessage;
+import com.donttouch.internal_assistant_service.domain.member.exception.UserNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.repository.DailyStockChartsRepository;
+import com.donttouch.internal_assistant_service.domain.member.repository.HoldingPeriodDistributionRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserAssetsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserTradesRepository;
-import jakarta.validation.constraints.Null;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +35,8 @@ public class UserService {
     private final DailyStockChartsRepository dailyStockChartsRepository;
     private final UserAssetsRepository userAssetsRepository;
     private final UserTradesRepository userTradesRepository;
+    private final HoldingPeriodDistributionRepository holdingPeriodDistributionRepository;
+    private final UserRepository userRepository;
 
     public List<MyStockResponse> getMyStocks(String userId) {
         List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
@@ -69,6 +73,16 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public TradeTypeResponse getTradeType(String userId) {
+        User user = userRepository.findById(userId).
+                orElseThrow(()-> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
+        return TradeTypeResponse.builder()
+                .investmentType(user.getInvestmentType())
+                .build();
+    }
+
 
     public TradeMoneyResponse getTradeMoney(String userId) {
         UserAssets userAssets = userAssetsRepository.findByUserId(userId)
@@ -246,5 +260,69 @@ public class UserService {
                 .sectorList(sectorList)
                 .build();
     }
+
+    public HoldingPeriodResponse getTradeRecord(String userId) {
+        List<UserTrades> trades = userTradesRepository.findByUserId(userId);
+        double avgHoldingDays = calculateAverageHoldingDays(trades);
+        List<HoldingPeriodDistribution> distributions = holdingPeriodDistributionRepository.findAllByOrderByQuantileAsc();
+        double quantile = 0.0;
+
+        for (HoldingPeriodDistribution d : distributions) {
+            if (avgHoldingDays >= d.getHoldingDays()) {
+                quantile = d.getQuantile();
+            } else {
+                break;
+            }
+        }
+
+        return HoldingPeriodResponse.builder()
+                .averageHoldingDays(Math.round(avgHoldingDays * 10.0) / 10.0)
+                .quantile(Math.round(quantile * 100.0) / 100.0)
+                .build();
+
+    }
+
+    private double calculateAverageHoldingDays(List<UserTrades> trades) {
+        if (trades == null || trades.isEmpty()) return 0.0;
+        trades.sort(Comparator.comparing(UserTrades::getTradeTs));
+
+        Deque<UserTrades> buyQueue = new ArrayDeque<>();
+
+        double totalDays = 0.0;
+        int matchedQuantity = 0;
+
+        for (UserTrades trade : trades) {
+            if (trade.getSide() == Side.BUY) {
+                buyQueue.addLast(UserTrades.builder()
+                        .tradeTs(trade.getTradeTs())
+                        .quantity(trade.getQuantity())
+                        .build());
+            } else if (trade.getSide() == Side.SELL) {
+                double remaining = trade.getQuantity();
+
+                while (remaining > 0 && !buyQueue.isEmpty()) {
+                    UserTrades buy = buyQueue.peekFirst();
+                    int matched = (int)Math.min(remaining, buy.getQuantity());
+                    long days = java.time.Duration.between(
+                            buy.getTradeTs(), trade.getTradeTs()
+                    ).toDays();
+
+                    totalDays += days * matched;
+                    matchedQuantity += matched;
+
+                    remaining -= matched;
+                    buy.setQuantity(buy.getQuantity() - matched);
+
+                    if (buy.getQuantity() == 0) {
+                        buyQueue.removeFirst();
+                    }
+                }
+            }
+        }
+
+        return matchedQuantity == 0 ? 0.0 : totalDays / matchedQuantity;
+    }
+
+
 }
 

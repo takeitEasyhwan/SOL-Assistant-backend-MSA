@@ -1,9 +1,7 @@
-package com.donttouch.common_service.stock.repository;
+package com.donttouch.common_service.sector.repository;
 
-import com.donttouch.common_service.stock.entity.Sector;
+import com.donttouch.common_service.sector.entity.Sector;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 
 public interface SectorRepository extends JpaRepository<Sector, Long> {
     Sector findBySectorName(String sectorName);

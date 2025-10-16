@@ -1,4 +1,5 @@
 package com.donttouch.internal_assistant_service.domain.member.entity.vo;
+import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import lombok.*;
 
 import java.time.LocalDateTime;

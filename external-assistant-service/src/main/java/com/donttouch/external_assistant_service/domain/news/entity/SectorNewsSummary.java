@@ -1,6 +1,6 @@
 package com.donttouch.external_assistant_service.domain.news.entity;
 
-import com.donttouch.common_service.stock.entity.Sector;
+import com.donttouch.common_service.sector.entity.Sector;
 import jakarta.persistence.*;
 import lombok.*;
 

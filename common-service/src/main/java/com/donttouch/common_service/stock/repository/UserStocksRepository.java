@@ -1,7 +1,6 @@
 package com.donttouch.common_service.stock.repository;
 
 import com.donttouch.common_service.auth.entity.User;
-import com.donttouch.common_service.stock.entity.Sector;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.entity.UserStocks;
 import org.springframework.data.jpa.repository.JpaRepository;

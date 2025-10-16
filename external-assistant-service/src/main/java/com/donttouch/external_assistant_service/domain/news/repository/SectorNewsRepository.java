@@ -1,6 +1,6 @@
 package com.donttouch.external_assistant_service.domain.news.repository;
 
-import com.donttouch.common_service.stock.entity.Sector;
+import com.donttouch.common_service.sector.entity.Sector;
 import com.donttouch.external_assistant_service.domain.news.entity.SectorNews;
 import org.springframework.data.jpa.repository.JpaRepository;
 

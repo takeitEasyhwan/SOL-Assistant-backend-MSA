@@ -3,16 +3,13 @@ package com.donttouch.internal_assistant_service.domain.member.controller;
 
 import com.donttouch.common_service.global.aop.AssignCurrentMemberId;
 import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.MyStockResponse;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.Side;
+import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeRequest;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeResponse;
 import com.donttouch.internal_assistant_service.domain.member.service.UserTradesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

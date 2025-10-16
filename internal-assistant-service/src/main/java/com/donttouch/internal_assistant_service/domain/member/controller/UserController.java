@@ -5,6 +5,7 @@ import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.MyStockResponse;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeMoneyResponse;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeProfitResponse;
+import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeSectorResponse;
 import com.donttouch.internal_assistant_service.domain.member.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,16 +38,30 @@ public class UserController {
     }
 
     @GetMapping("/trade-sector")
-    public void tradeSector() {
-
+    @AssignCurrentMemberId
+    public TradeSectorResponse getTradeSector(CurrentMemberIdRequest currentUser) {
+        return userService.getTradeSector(currentUser.getUserUuid());
     }
 
-    @GetMapping("/trade-profit/{startDate}/{endDate}")
+    @GetMapping("/trade-profit/thisMonth")
     @AssignCurrentMemberId
-    public TradeProfitResponse getTradeProfit(@PathVariable String startDate, @PathVariable String endDate, CurrentMemberIdRequest currentUser) {
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate end = LocalDate.parse(endDate);
-        return userService.getTradeProfit(currentUser.getUserUuid(), start, end);
+    public TradeProfitResponse getTradeProfit(CurrentMemberIdRequest currentUser) {
+        LocalDate start = LocalDate.now().withDayOfMonth(1);
+        return userService.getTradeSimpleProfit(currentUser.getUserUuid(), start);
+    }
+
+    @GetMapping("/trade-profit/{month}")
+    @AssignCurrentMemberId
+    public TradeProfitResponse getTradeProfit(@PathVariable String month, CurrentMemberIdRequest currentUser) {
+        LocalDate start = LocalDate.parse(month+"-01");
+        return userService.getTradeProfit(currentUser.getUserUuid(), start);
+    }
+
+    @GetMapping("/trade-profit/sep/{month}")
+    @AssignCurrentMemberId
+    public TradeProfitResponse getTradeProfitSep(@PathVariable String month, CurrentMemberIdRequest currentUser) {
+        LocalDate start = LocalDate.parse(month+"-01");
+        return userService.getTradeProfitSep(currentUser.getUserUuid(), start);
     }
 
     @GetMapping("/trade-money")

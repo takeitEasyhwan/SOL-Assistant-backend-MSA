@@ -30,7 +30,7 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
         FROM UserTrades t
         WHERE t.user.id = :userId
           AND t.tradeTs BETWEEN :start AND :end
-        ORDER BY t.tradeTs ASC
+        ORDER BY t.tradeTs DESC
     """)
     List<UserTrades> findByUserIdAndTradeTsBetween(
             @Param("userId") String userId,

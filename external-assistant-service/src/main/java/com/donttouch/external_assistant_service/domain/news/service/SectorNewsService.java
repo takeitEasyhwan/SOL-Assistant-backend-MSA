@@ -1,7 +1,7 @@
 package com.donttouch.external_assistant_service.domain.news.service;
 
-import com.donttouch.common_service.stock.entity.Sector;
-import com.donttouch.common_service.stock.repository.SectorRepository;
+import com.donttouch.common_service.sector.entity.Sector;
+import com.donttouch.common_service.sector.repository.SectorRepository;
 import com.donttouch.external_assistant_service.domain.news.entity.SectorNews;
 import com.donttouch.external_assistant_service.domain.news.entity.SectorNewsSummary;
 import com.donttouch.external_assistant_service.domain.news.repository.SectorNewsRepository;

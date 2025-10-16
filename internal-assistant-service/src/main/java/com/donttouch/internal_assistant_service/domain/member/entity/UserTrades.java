@@ -2,7 +2,6 @@ package com.donttouch.internal_assistant_service.domain.member.entity;
 
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.stock.entity.Stock;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.Side;
 import jakarta.persistence.*;
 import lombok.*;
 

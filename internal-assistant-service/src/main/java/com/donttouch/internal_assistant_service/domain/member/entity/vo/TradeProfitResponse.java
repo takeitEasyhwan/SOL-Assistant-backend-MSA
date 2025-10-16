@@ -1,5 +1,6 @@
 package com.donttouch.internal_assistant_service.domain.member.entity.vo;
 
+import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class TradeProfitResponse {
     private double buyAmount;
     private List<TradeDetail> sellList;
     private List<TradeDetail> buyList;
+    private List<TradeDetail> tradeList;
 
     @Data
     @Builder
@@ -27,6 +29,7 @@ public class TradeProfitResponse {
         private double price;
         private double quantity;
         private double totalPrice;
+        private Side side;
         private LocalDateTime tradeDate;
     }
 }

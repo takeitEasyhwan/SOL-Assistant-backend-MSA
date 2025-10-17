@@ -1,5 +1,6 @@
 package com.donttouch.common_service.auth.entity;
 
+import com.donttouch.common_service.auth.entity.vo.InvestmentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,11 +42,5 @@ public class User {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
-    }
-
-    public enum InvestmentType {
-        DAY,
-        SWING,
-        HOLD
     }
 }

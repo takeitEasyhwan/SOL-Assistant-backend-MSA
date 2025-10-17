@@ -17,9 +17,8 @@ public class TestController {
 
     private final MemberService memberService;
 
-    @GetMapping("/hi")
+    @GetMapping("/api/v1/internal/hi")
     @Transactional
-    @AssignCurrentMemberId
     public List<Member> hi() {
         List<Member> memberList = memberService.findAllMembers();
         for (Member member : memberList) {

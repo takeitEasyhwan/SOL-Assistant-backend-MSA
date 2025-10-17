@@ -14,24 +14,24 @@ jobs:
     steps:
       - name: Call internal workflow
         if: github.ref == 'refs/heads/internal-assistant-main'
-        uses: ./.github/workflows/internal-assistant-deploy.yml
+        uses: ./internal-assistant-deploy.yml
         with:
           branch_name: internal-assistant-main
 
       - name: Call external workflow
         if: github.ref == 'refs/heads/external-assistant-main'
-        uses: ./.github/workflows/external-assistant-deploy.yml
+        uses: ./external-assistant-deploy.yml
         with:
           branch_name: external-assistant-main
 
       - name: Call insight workflow
         if: github.ref == 'refs/heads/insight-assistant-main'
-        uses: ./.github/workflows/insight-assistant-deploy.yml
+        uses: ./insight-assistant-deploy.yml
         with:
           branch_name: insight-assistant-main
 
       - name: Call common workflow
         if: github.ref == 'refs/heads/common-service-main'
-        uses: ./.github/workflows/common-service-deploy.yml
+        uses: ./common-assistant-deploy.yml
         with:
           branch_name: common-service-main

@@ -1,0 +1,28 @@
+# external-deploy.yml
+name: Build and Deploy External Assistant Service
+on:
+  push:
+    branches: [external-assistant-main]
+
+jobs:
+  build-and-deploy-external:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 여기부터 internal 서비스 대신 external 서비스 설정
+      - name: Restore external application.yml
+        working-directory: ./external-assistant-service
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.EXTERNAL_YML }}" > src/main/resources/application.yml
+          echo "${{ secrets.COMMON_YML }}" > src/main/resources/application-common.yml
+
+      # Gradle 빌드 / Docker 빌드 / S3 업로드 / CodeDeploy 배포 ...

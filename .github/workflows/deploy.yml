@@ -25,15 +25,14 @@ jobs:
         working-directory: ./internal-assistant-service
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.INTERNAL_YML }}" | tr -d '\n' | base64 --decode > src/main/resources/application-common.yml
-
+          echo "${{ secrets.INTERNAL_YML }}" > src/main/resources/application.yml
 
       # common-service application-common.yml 복원
       - name: Restore common-service application-common.yml
         working-directory: ./common-service
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.COMMON_YML }}" | tr -d '\n' | base64 --decode > src/main/resources/application-common.yml
+          echo "${{ secrets.COMMON_YML }}" > src/main/resources/application-common.yml
 
       # 3. Gradle 빌드
       - name: Build with Gradle

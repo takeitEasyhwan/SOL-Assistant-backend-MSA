@@ -17,7 +17,8 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-*.yml
+application.yml
+application-common.yml
 
 *.pem
 

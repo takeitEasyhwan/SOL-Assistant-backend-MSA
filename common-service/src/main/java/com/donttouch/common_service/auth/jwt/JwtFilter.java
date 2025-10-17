@@ -80,6 +80,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         return uri.equals("/") ||
                 uri.startsWith("/api/auth") ||
+                uri.startsWith("/api/v1/external") ||
+                uri.startsWith("/api/v1/internal") ||
                 uri.startsWith("/api/exception") ||
                 uri.equals("/favicon.ico") ||
                 uri.startsWith("/swagger-ui") ||

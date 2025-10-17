@@ -1,5 +1,6 @@
 package com.donttouch.common_service.stock.entity;
 
+import com.donttouch.common_service.sector.entity.Sector;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,4 +35,6 @@ public class Stock {
     @Column(name = "management")
     private Boolean management;
 
+    @Column(name = "delisting")
+    private Boolean delisting;
 }

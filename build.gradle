@@ -79,6 +79,10 @@ subprojects {
 
 		//okHttp
 //		implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+
+        //selenium
+        implementation 'org.seleniumhq.selenium:selenium-java:4.20.0'
+        implementation 'io.github.bonigarcia:webdrivermanager:5.9.2'
 // 외부 api 요청시 사용
 	}
 

@@ -29,6 +29,5 @@ public class StockExceptionHandler {
                         "error", e.getMessage(),
                         "status", HttpStatus.NOT_FOUND.value()
                 ));
-
     }
 }

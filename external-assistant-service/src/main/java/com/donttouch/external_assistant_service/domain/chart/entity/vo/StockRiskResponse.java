@@ -9,13 +9,17 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class StockRiskResponse {
-    private String stockId;
-    private boolean management; // 관리종목, 투자주의, 정상 등
+    private String symbol;
+    private String stockName;
+    private boolean management;
+    private boolean delisting;
 
     public static StockRiskResponse fromEntity(Stock stock) {
         return StockRiskResponse.builder()
-                .stockId(stock.getId())
+                .symbol(stock.getSymbol())
+                .stockName(stock.getStockName())
                 .management(stock.getManagement())
+                .delisting(stock.getDelisting())
                 .build();
     }
 }

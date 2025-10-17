@@ -20,12 +20,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 2.5. Restore application.yml from Secrets
-      - name: Restore application.yml
+      # internal-assistant-service application.yml 복원
+      - name: Restore internal-assistant-service application.yml
         working-directory: ./internal-assistant-service
         run: |
+          mkdir -p src/main/resources
           echo "${{ secrets.INTERNAL_YML }}" | base64 --decode > src/main/resources/application.yml
-          echo "${{ secrets.INTERNAL_COMMON_YML }}" | base64 --decode > src/main/resources/application-common.yml
+
+      # common-service application-common.yml 복원
+      - name: Restore common-service application-common.yml
+        working-directory: ./common-service
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.COMMON_YML }}" | base64 --decode > src/main/resources/application-common.yml
 
       # 3. Gradle 빌드
       - name: Build with Gradle

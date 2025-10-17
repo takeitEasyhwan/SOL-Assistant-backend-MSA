@@ -48,7 +48,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/v1/internal/login",
                                 "/api/v1/internal/hi",
-                                "/api/v1/internal/register"
+                                "/api/v1/internal/register",
+                                "/api/v1/insight/health",
+                                "/api/v1/internal/health",
+                                "/api/v1/external/health"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

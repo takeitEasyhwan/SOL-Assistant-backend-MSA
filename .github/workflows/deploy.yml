@@ -34,6 +34,14 @@ jobs:
           mkdir -p src/main/resources
           echo "${{ secrets.COMMON_YML }}" > src/main/resources/application-common.yml
 
+      - name: Check internal service resources
+        working-directory: ./internal-assistant-service
+        run: ls -l src/main/resources/
+
+      - name: Check common-service yml resources
+        working-directory: ./common-service
+        run: ls -l src/main/resources/
+
       # 3. Gradle 빌드
       - name: Build with Gradle
         working-directory: ./internal-assistant-service

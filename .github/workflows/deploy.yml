@@ -1,55 +1,42 @@
-name: Build and Deploy Internal Assistant Service
-
-on:
-  push:
-    branches: [internal-assistant-main]
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: internal-assistant-service  # ✅ internal-service 폴더 기준으로 실행
-
-    steps:
-      # 1. 코드 체크아웃
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # 2. Docker 설정
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      # 3. Docker 이미지 빌드 (ARM64)
-      - name: Build Docker image for ARM64
-        run: docker buildx build --platform linux/arm64 -t internal-assistant-service --load .
-
-      # 4. Docker 이미지 tar로 저장
-      - name: Save Docker image to tar
-        run: docker save internal-assistant-service > internal-assistant-service.tar
-
-      # 5. AWS 인증 설정
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      # 6. appspec.yml, deploy.sh, tar 파일을 zip으로 묶기
-      - name: Create deployment zip
-        run: |
-          zip -r internal-assistant-service-${{ github.sha }}.zip appspec.yml deploy/*.sh internal-assistant-service.tar
-
-      # 7. S3에 업로드
-      - name: Upload zip to S3
-        run: aws s3 cp internal-assistant-service-${{ github.sha }}.zip s3://sol-assistant-s3/internal-assistant-service/
-
-#      # 8. CodeDeploy 배포
-#      - name: Deploy with CodeDeploy
+#name: Build and Deploy Assistant Services
+#
+#on:
+#  push:
+#    branches:
+#      - internal-assistant-main
+#      - external-assistant-main
+#      - insight-assistant-main
+#      - common-service-main
+#
+#jobs:
+#  internal-assistant-main:
+#    if: github.ref == 'refs/heads/internal-assistant-main'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Test internal
 #        run: |
-#          aws deploy create-deployment \
-#            --application-name internal-assistant-service \
-#            --deployment-config-name CodeDeployDefault.OneAtATime \
-#            --deployment-group-name internal-service-deploy-group \
-#            --s3-location bucket=sol-assistant-s3,bundleType=zip,key=internal-assistant-service/internal-assistant-service-${GITHUB_SHA}.zip
+#          echo "✅ internal-assistant-main branch push detected - test internal 성공"
+#
+#  external-assistant-main:
+#    if: github.ref == 'refs/heads/external-assistant-main'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Test external
+#        run: |
+#          echo "✅ external-assistant-main branch push detected - test external 성공"
+#
+#  insight-assistant-main:
+#    if: github.ref == 'refs/heads/insight-assistant-main'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Test insight
+#        run: |
+#          echo "✅ insight-assistant-main branch push detected - test insight 성공"
+#
+#  common-service-main:
+#    if: github.ref == 'refs/heads/common-service-main'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Test common
+#        run: |
+#          echo "✅ common-service-main branch push detected - test common 성공"

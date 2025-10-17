@@ -1,0 +1,27 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /home/ec2-user/sol-assistant-backend/
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ec2-user
+    group: ec2-user
+    mode: 755
+
+hooks:
+  AfterInstall:
+    - location: deploy/run_new.sh      # Private EC2에서 컨테이너 배포
+      timeout: 300
+      runas: ec2-user
+  ApplicationStart:
+    - location: deploy/health_check.sh # 새 컨테이너 헬스 체크
+      timeout: 180
+      runas: ec2-user
+  ValidateService:
+    - location: deploy/switch.sh       # Bastion에서 internal_port 변경 및 Nginx reload
+      timeout: 180
+      runas: ec2-user

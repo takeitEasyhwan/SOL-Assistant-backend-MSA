@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -89,6 +90,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 uri.startsWith("/v3/api-docs") ||
                 uri.equals("/api/v1/internal/register") ||
                 uri.equals("/api/v1/internal/hi") ||
+                uri.equals("/api/v1/insight/health") ||
+                uri.equals("/api/v1/internal/health") ||
+                uri.equals("/api/v1/external/health") ||
                 uri.equals("/api/v1/internal/login");
     }
 

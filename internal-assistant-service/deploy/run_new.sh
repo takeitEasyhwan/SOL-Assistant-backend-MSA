@@ -10,7 +10,7 @@ GREEN_PORT=8082
 # Bastion 서버 정보
 BASTION_USER="ec2-user"
 BASTION_HOST="Bastion_PUBLIC_IP"        # 실제 퍼블릭 IP 입력
-PEM_KEY="$APP_DIR/jojeonghyeon-ec2-key1.pem"
+PEM_KEY="/home/ec2-user/jojeonghyeon-ec2-key1.pem"
 INTERNAL_INC="/home/ec2-user/includes/internal_port.inc"
 
 echo "[INFO] === Checking Active Port on Bastion ==="

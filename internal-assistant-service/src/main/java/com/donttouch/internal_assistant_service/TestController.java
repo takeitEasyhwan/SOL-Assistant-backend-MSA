@@ -24,7 +24,7 @@ public class TestController {
         for (Member member : memberList) {
             System.out.println(member.toString());
         }
-        System.out.println("이게무슨일이오!");
+        System.out.println("이게무슨일이오.!");
 
         return memberList;
     }

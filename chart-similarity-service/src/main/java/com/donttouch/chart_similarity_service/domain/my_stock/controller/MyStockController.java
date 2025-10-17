@@ -3,6 +3,8 @@ package com.donttouch.chart_similarity_service.domain.my_stock.controller;
 import com.donttouch.chart_similarity_service.domain.my_stock.entity.UserStock;
 import com.donttouch.chart_similarity_service.domain.my_stock.service.MyStockService;
 import com.donttouch.chart_similarity_service.domain.my_stock.service.SignalService;
+import com.donttouch.common_service.global.aop.AssignCurrentMemberId;
+import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +27,12 @@ public class MyStockController {
      * @param signalType "buy" 또는 "sell" (선택)
      */
     @GetMapping("/my-stock")
+    @AssignCurrentMemberId
     public ResponseEntity<?> getMyStocks(
-            @RequestParam("user_id") String userId,
+            CurrentMemberIdRequest currentUser,
             @RequestParam(name = "signal-type", required = false) String signalType
     ) {
+        String userId = currentUser.getUserUuid();
         log.info("📩 요청 수신: user_id={}, signal-type={}", userId, signalType);
 
         if (signalType == null || signalType.isBlank()) {

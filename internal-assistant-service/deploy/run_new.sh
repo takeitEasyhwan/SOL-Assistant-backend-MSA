@@ -43,7 +43,7 @@ docker load -i $TAR_FILE
 docker image prune -f -f
 
 # 새 컨테이너 실행
-docker run -d --name ${APP_NAME}_${IDLE_PORT} -p $IDLE_PORT:$IDLE_PORT $APP_NAME:latest
+docker run -d --name ${APP_NAME}_${IDLE_PORT} -p $IDLE_PORT:8081 $APP_NAME:latest
 echo "[INFO] New container running on port $IDLE_PORT"
 
 echo "[INFO] Next: Run health_check.sh and switch.sh to complete deployment"

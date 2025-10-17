@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-PORT=$1  # run_new.sh에서 전달한 Idle 포트
+PORT_FILE="/home/ec2-user/internal_port.txt"
+PORT=$(cat $PORT_FILE)
 URL="http://127.0.0.1:${PORT}/api/v1/internal/health"
 MAX_RETRIES=10
 SLEEP_SECONDS=5

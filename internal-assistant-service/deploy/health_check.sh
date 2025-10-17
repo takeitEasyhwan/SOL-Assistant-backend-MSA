@@ -1,11 +1,8 @@
 #!/bin/bash
 set -e
 
-# 🔹 Private EC2 IP와 internal 포트
-PRIVATE_EC2_IP="10.0.2.131"
-INTERNAL_PORT=$(grep -oP '[0-9]+' /home/ec2-user/includes/internal_port.inc)
-URL="http://${PRIVATE_EC2_IP}:${INTERNAL_PORT}/api/v1/internal/health"
-
+PORT=$1  # run_new.sh에서 전달한 Idle 포트
+URL="http://127.0.0.1:${PORT}/api/v1/internal/health"
 MAX_RETRIES=10
 SLEEP_SECONDS=5
 

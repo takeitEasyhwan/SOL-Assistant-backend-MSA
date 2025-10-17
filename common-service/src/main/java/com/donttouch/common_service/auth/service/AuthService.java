@@ -2,6 +2,7 @@ package com.donttouch.common_service.auth.service;
 
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.entity.UserAuth;
+import com.donttouch.common_service.auth.entity.vo.InvestmentType;
 import com.donttouch.common_service.auth.entity.vo.RegisterRequest;
 import com.donttouch.common_service.auth.jwt.info.RefreshToken;
 import com.donttouch.common_service.auth.jwt.info.TokenProvider;
@@ -50,7 +51,7 @@ public class AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        TokenResponse tokenResponse = tokenProvider.createToken(authId, DEFAULT_ROLE);
+        TokenResponse tokenResponse = tokenProvider.createToken(userAuth.getUser().getId(), authId, DEFAULT_ROLE);
         System.out.println("[login] accessToken: " + tokenResponse.accessToken());
         System.out.println("[login] refreshToken: " + tokenResponse.refreshToken());
 
@@ -108,7 +109,7 @@ public class AuthService {
             throw new ReissueFailException();
         }
 
-        TokenResponse tokenResponse = tokenProvider.createToken(findToken.getAuthId(), DEFAULT_ROLE);
+        TokenResponse tokenResponse = tokenProvider.createToken(findToken.getUserId(), findToken.getAuthId(), DEFAULT_ROLE);
         saveRefreshToken(UserAuth.builder()
                 .userAuthId(findToken.getUserId())
                 .authId(findToken.getAuthId())
@@ -123,12 +124,13 @@ public class AuthService {
         if (existingUser != null) {
             throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
         }
+        String createUuid = UUID.randomUUID().toString();
 
         User user = User.builder()
-                .id(UUID.randomUUID().toString())
+                .id(createUuid)
                 .name(registerRequest.getName())
                 .phone(registerRequest.getPhone())
-                .investmentType(User.InvestmentType.HOLD)
+                .investmentType(InvestmentType.HOLD)
                 .build();
         userRepository.save(user);
 
@@ -142,7 +144,7 @@ public class AuthService {
 
         authRepository.save(newUserAuth);
 
-        TokenResponse tokenResponse = tokenProvider.createToken(registerRequest.getAuthId(), DEFAULT_ROLE);
+        TokenResponse tokenResponse = tokenProvider.createToken(createUuid, registerRequest.getAuthId(), DEFAULT_ROLE);
         saveRefreshToken(newUserAuth, tokenResponse, DEFAULT_ROLE);
 
         return tokenResponse;

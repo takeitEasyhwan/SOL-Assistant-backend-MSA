@@ -41,9 +41,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/v1/external/**",
+                                "/api/v1/internal/**",
+                                "/api/v1/chart-similarity-service/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/v1/internal/login",
+                                "/api/v1/internal/hi",
                                 "/api/v1/internal/register"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -66,6 +70,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
+        // 개발 환경에서만 localhost 허용
+        config.setAllowedOriginPatterns(List.of("http://localhost:3000"));
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

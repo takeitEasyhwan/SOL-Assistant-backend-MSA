@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 
-INTERNAL_PORT=$(grep -oP '[0-9]+' /home/ec2-user/sol-assistant-backend/includes/internal_port.inc)
-URL="http://localhost:${INTERNAL_PORT}/api/v1/internal/health"
+# 🔹 Private EC2 IP와 internal 포트
+PRIVATE_EC2_IP="10.0.2.131"
+INTERNAL_PORT=$(grep -oP '[0-9]+' /home/ec2-user/includes/internal_port.inc)
+URL="http://${PRIVATE_EC2_IP}:${INTERNAL_PORT}/api/v1/internal/health"
+
 MAX_RETRIES=10
 SLEEP_SECONDS=5
 

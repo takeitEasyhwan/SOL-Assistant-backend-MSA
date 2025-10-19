@@ -25,7 +25,6 @@
 //@Profile("stg")
 //@Component
 //@ConfigurationProperties(prefix = "ssh")
-//@Validated
 //@Getter
 //@Setter
 //public class SshTunnelingInitializer {
@@ -33,39 +32,44 @@
 //    private String remoteJumpHost;
 //    private String user;
 //    private int sshPort;
-//    private String privateKey; // 예: "ssh/ssh.pem"
-//    private String databaseUrl;
+//    private String privateKey;
+//    private String databaseUrl;        // master
+//    private String readOnly;           // read replica
 //    private int databasePort;
 //
-//    private Session session;
+//    // 세션 2개 관리
+//    private Session masterSession;
+//    private Session replicaSession;
 //
 //    @PreDestroy
 //    public void closeSSH() {
+//        disconnect(masterSession, "Master");
+//        disconnect(replicaSession, "Replica");
+//    }
+//
+//    private void disconnect(Session session, String name) {
 //        try {
 //            if (session != null && session.isConnected()) {
 //                session.disconnect();
-//                log.info("SSH session disconnected");
+//                log.info("{} SSH session disconnected", name);
 //            }
-//        } catch (Exception ignore) {
-//            // swallow
-//        }
+//        } catch (Exception ignore) {}
 //    }
 //
 //    /**
-//     * SSH 터널링 세션 생성 및 포트 포워딩
+//     * SSH 터널링 생성 (read/write 구분)
 //     *
-//     * @return forwardedPort 로컬 포워딩된 DB 포트
+//     * @param isReadReplica true면 Read Replica용
+//     * @return forwardedPort
 //     */
-//    public Integer buildSshConnection() {
+//    public Integer buildSshConnection(boolean isReadReplica) {
 //        Integer forwardedPort = null;
 //
 //        try {
-//            log.info("{}@{}:{}:{} with privateKey", user, remoteJumpHost, sshPort, databasePort);
-//            log.info("Start SSH tunneling...");
+//            String targetHost = isReadReplica ? readOnly : databaseUrl;
+//            String targetType = isReadReplica ? "Replica" : "Master";
 //
 //            JSch jSch = new JSch();
-//
-//            // classpath에서 privateKey 읽기 -> 임시 파일 생성
 //            Resource resource = new ClassPathResource(privateKey);
 //            File tempKey = File.createTempFile("ssh-key", ".pem");
 //            tempKey.deleteOnExit();
@@ -75,27 +79,27 @@
 //                in.transferTo(out);
 //            }
 //
-//            // JSch에 임시 파일 경로 전달
 //            jSch.addIdentity(tempKey.getAbsolutePath());
-//            session = jSch.getSession(user, remoteJumpHost, sshPort);
+//            Session session = jSch.getSession(user, remoteJumpHost, sshPort);
 //
 //            Properties config = new Properties();
 //            config.put("StrictHostKeyChecking", "no");
 //            session.setConfig(config);
 //
-//            log.info("Connecting SSH session...");
+//            log.info("[SSH] Connecting {} session...", targetType);
 //            session.connect();
-//            log.info("SSH session connected");
+//            log.info("[SSH] {} session connected", targetType);
 //
-//            // 로컬 PC의 남는 포트와 원격 DB 포트 연결
-//            log.info("Start port forwarding...");
-//            forwardedPort = session.setPortForwardingL(0, databaseUrl, databasePort);
-//            log.info("Port forwarding success. Local forwarded port: {}", forwardedPort);
+//            forwardedPort = session.setPortForwardingL(0, targetHost, databasePort);
+//            log.info("[SSH] {} Port forwarding success. local: {}, remote: {}", targetType, forwardedPort, targetHost);
+//
+//            if (isReadReplica) this.replicaSession = session;
+//            else this.masterSession = session;
 //
 //        } catch (Exception e) {
 //            log.error("Failed to create SSH tunneling: {}", e.getMessage(), e);
 //            this.closeSSH();
-//            exit(1);
+//            System.exit(1);
 //        }
 //
 //        return forwardedPort;

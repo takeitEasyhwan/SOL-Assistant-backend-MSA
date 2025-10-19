@@ -2,7 +2,8 @@ package com.donttouch.common_service.auth.service;
 
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.entity.UserAuth;
-import com.donttouch.common_service.auth.entity.InvestmentType;
+import com.donttouch.common_service.auth.entity.vo.InvestmentType;
+import com.donttouch.common_service.auth.entity.vo.MyInfoResponse;
 import com.donttouch.common_service.auth.entity.vo.RegisterRequest;
 import com.donttouch.common_service.auth.jwt.info.RefreshToken;
 import com.donttouch.common_service.auth.jwt.info.TokenProvider;
@@ -10,10 +11,13 @@ import com.donttouch.common_service.auth.jwt.info.TokenResponse;
 import com.donttouch.common_service.auth.repository.AuthRepository;
 import com.donttouch.common_service.auth.repository.RefreshTokenRedisRepository;
 import com.donttouch.common_service.auth.repository.UserRepository;
+import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
 import com.donttouch.common_service.global.exception.ReissueFailException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,22 +42,17 @@ public class AuthService {
 
     /** 회원 로그인 */
     public TokenResponse login(String authId, String password) {
-        System.out.println("[login] authId: " + authId);
 
         UserAuth userAuth = authRepository.findByAuthId(authId);
         if (userAuth == null) {
-            System.out.println("[login] 존재하지 않는 사용자");
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
         if (!passwordEncoder.matches(password, userAuth.getPassword())) {
-            System.out.println("[login] 비밀번호 불일치");
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         TokenResponse tokenResponse = tokenProvider.createToken(userAuth.getUser().getId(), authId, DEFAULT_ROLE);
-        System.out.println("[login] accessToken: " + tokenResponse.accessToken());
-        System.out.println("[login] refreshToken: " + tokenResponse.refreshToken());
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .userId(String.valueOf(userAuth.getUserAuthId()))
@@ -62,7 +61,6 @@ public class AuthService {
                 .authorities(List.of(new SimpleGrantedAuthority(DEFAULT_ROLE)))
                 .build();
         refreshTokenRedisRepository.save(refreshToken);
-        System.out.println("[login] refreshToken saved in Redis");
 
         userAuth.setLastLogin(LocalDateTime.now());
         authRepository.save(userAuth);
@@ -149,6 +147,5 @@ public class AuthService {
 
         return tokenResponse;
     }
-
 
 }

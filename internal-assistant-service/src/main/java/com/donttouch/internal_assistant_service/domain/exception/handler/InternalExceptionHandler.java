@@ -1,8 +1,8 @@
-package com.donttouch.internal_assistant_service.domain.member.exception.handler;
-import com.donttouch.internal_assistant_service.domain.member.exception.AssetNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.exception.ChartDataNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.exception.StockNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.exception.UserNotFoundException;
+package com.donttouch.internal_assistant_service.domain.exception.handler;
+import com.donttouch.internal_assistant_service.domain.exception.AssetNotFoundException;
+import com.donttouch.internal_assistant_service.domain.exception.ChartDataNotFoundException;
+import com.donttouch.internal_assistant_service.domain.exception.StockNotFoundException;
+import com.donttouch.internal_assistant_service.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 
 @RestControllerAdvice
-public class StockExceptionHandler {
+public class InternalExceptionHandler {
     @ExceptionHandler(StockNotFoundException.class)
     public ResponseEntity<Object> handleStockNotFoundException(StockNotFoundException e) {
         return ResponseEntity

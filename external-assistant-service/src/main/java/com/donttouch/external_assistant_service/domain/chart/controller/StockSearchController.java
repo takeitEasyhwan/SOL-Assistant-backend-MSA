@@ -19,10 +19,8 @@ public class StockSearchController {
     private final StockSearchService stockSearchService;
 
     @GetMapping("/search/{stockName}")
-    public ResponseEntity<Map<String, Object>> searchStocks(@PathVariable String stockName) {
+    public ResponseEntity<List<StockSearchResponse>> searchStocks(@PathVariable String stockName) {
         List<StockSearchResponse> results = stockSearchService.searchStocks(stockName);
-        Map<String, Object> response = new HashMap<>();
-        response.put("stockList", results);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(results);
     }
 }

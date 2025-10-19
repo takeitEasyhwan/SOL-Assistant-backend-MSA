@@ -16,21 +16,18 @@ import java.util.HashMap;
 @EnableJpaRepositories
 public class DataSourceConfig {
 
-    // Write replica 정보로 만든 DataSource
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.write")
     public DataSource writeDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
-    // Read replica 정보로 만든 DataSource
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.read")
     public DataSource readDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
-    // 읽기 모드인지 여부로 DataSource를 분기 처리
     @Bean
     @DependsOn({"writeDataSource", "readDataSource"})
     public DataSource routeDataSource() {

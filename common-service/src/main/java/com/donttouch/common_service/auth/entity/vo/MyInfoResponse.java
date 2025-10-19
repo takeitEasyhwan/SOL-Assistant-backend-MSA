@@ -1,5 +1,6 @@
 package com.donttouch.common_service.auth.entity.vo;
 
+import com.donttouch.common_service.auth.entity.InvestmentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

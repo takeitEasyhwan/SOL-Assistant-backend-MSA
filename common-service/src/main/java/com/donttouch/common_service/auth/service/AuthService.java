@@ -1,9 +1,8 @@
 package com.donttouch.common_service.auth.service;
 
+import com.donttouch.common_service.auth.entity.InvestmentType;
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.entity.UserAuth;
-import com.donttouch.common_service.auth.entity.vo.InvestmentType;
-import com.donttouch.common_service.auth.entity.vo.MyInfoResponse;
 import com.donttouch.common_service.auth.entity.vo.RegisterRequest;
 import com.donttouch.common_service.auth.jwt.info.RefreshToken;
 import com.donttouch.common_service.auth.jwt.info.TokenProvider;
@@ -11,13 +10,10 @@ import com.donttouch.common_service.auth.jwt.info.TokenResponse;
 import com.donttouch.common_service.auth.repository.AuthRepository;
 import com.donttouch.common_service.auth.repository.RefreshTokenRedisRepository;
 import com.donttouch.common_service.auth.repository.UserRepository;
-import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
 import com.donttouch.common_service.global.exception.ReissueFailException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

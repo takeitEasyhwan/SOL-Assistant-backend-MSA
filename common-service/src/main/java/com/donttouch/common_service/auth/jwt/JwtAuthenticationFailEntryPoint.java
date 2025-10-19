@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFailEntryPoint implements AuthenticationEntryPoint {
-    private static final String EXCEPTION_ENTRY_POINT = "/login/exception/entry-point";
+    private static final String EXCEPTION_ENTRY_POINT = "/api/v1/internal/exception/entry-point";
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,

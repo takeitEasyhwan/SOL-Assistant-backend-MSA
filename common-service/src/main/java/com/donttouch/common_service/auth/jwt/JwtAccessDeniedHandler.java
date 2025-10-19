@@ -11,7 +11,7 @@ import java.io.IOException;
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
-    private static final String EXCEPTION_ACCESS_HANDLER = "/login/exception/access-denied";
+    private static final String EXCEPTION_ACCESS_HANDLER = "/api/v1/internal/exception/access-denied";
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,

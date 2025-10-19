@@ -1,4 +1,4 @@
-package com.donttouch.common_service.global.exception.handler;
+package com.donttouch.internal_assistant_service.global;
 
 import com.donttouch.common_service.global.exception.AccessDeniedException;
 import com.donttouch.common_service.global.exception.AccessTokenExpiredException;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Auth Exception API", description = "인증 예외 처리 API")
 @RestController
-@RequestMapping("/api/exception")
+@RequestMapping("/api/v1/internal/exception")
 public class AuthExceptionController {
 
     @Operation(summary = "접근 거부 예외", description = "접근 거부 예외를 발생시킵니다.")

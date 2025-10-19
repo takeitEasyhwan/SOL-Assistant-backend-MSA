@@ -1,6 +1,6 @@
 package com.donttouch.internal_assistant_service.domain.expert.entity.vo;
 
-import com.donttouch.common_service.auth.entity.vo.InvestmentType;
+import com.donttouch.common_service.auth.entity.InvestmentType;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
 import lombok.*;

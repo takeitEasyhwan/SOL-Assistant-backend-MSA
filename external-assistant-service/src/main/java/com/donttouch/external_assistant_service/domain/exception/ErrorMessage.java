@@ -1,10 +1,9 @@
-package com.donttouch.internal_assistant_service.domain.member.exception;
+package com.donttouch.external_assistant_service.domain.exception;
 
 public enum ErrorMessage {
+    NEWS_NOT_FOUND("관련 뉴스 정보가 없습니다."),
     STOCK_NOT_FOUND("존재하지 않는 종목입니다."),
-    CHART_DATA_NOT_FOUND("해당 종목의 차트 데이터가 없습니다."),
-    USER_NOT_FOUND("존재하지 않는 사용자입니다."),
-    ASSET_NOT_FOUND("잔액 데이터가 없습니다.");
+    CHART_DATA_NOT_FOUND("해당 종목의 차트 데이터가 없습니다.");
 
     private final String message;
 

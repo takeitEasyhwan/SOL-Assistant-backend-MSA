@@ -3,6 +3,7 @@ package com.donttouch.external_assistant_service.domain.news.service;
 import com.donttouch.common_service.sector.entity.Sector;
 import com.donttouch.common_service.sector.repository.SectorRepository;
 import com.donttouch.external_assistant_service.domain.news.entity.SectorNews;
+import com.donttouch.external_assistant_service.domain.news.entity.SectorNewsSource;
 import com.donttouch.external_assistant_service.domain.news.entity.SectorNewsSummary;
 import com.donttouch.external_assistant_service.domain.news.repository.SectorNewsRepository;
 import com.donttouch.external_assistant_service.domain.news.repository.SectorNewsSummaryRepository;
@@ -25,7 +26,7 @@ public class SectorNewsService {
     private final SectorNewsSummaryRepository summaryRepository;
     private final SectorRepository sectorRepository;
 
-    @Transactional
+//    @Transactional
     public SectorNewsSummary processSectorNews(String sectorName) {
         Sector sector = sectorRepository.findBySectorName(sectorName);
         newsRepository.deleteBySector(sector);
@@ -42,12 +43,17 @@ public class SectorNewsService {
         return summary;
     }
 
+    @Transactional
     public List<SectorNewsSummary> processAllSectorNews() {
         List<Sector> allSectors = sectorRepository.findAll();
 
         List<SectorNewsSummary> result = new ArrayList<>();
 
-        for (Sector sector : allSectors) {
+        List<Sector> targetSectors = allSectors.stream()
+                .filter(sector -> SectorNewsSource.SECTOR_URL_MAP.containsKey(sector.getSectorName()))
+                .toList();
+
+        for (Sector sector : targetSectors) {
             String sectorName = sector.getSectorName();
 
             try {

@@ -83,6 +83,9 @@ subprojects {
         //selenium
         implementation 'org.seleniumhq.selenium:selenium-java:4.20.0'
         implementation 'io.github.bonigarcia:webdrivermanager:5.9.2'
+
+        //Gemini
+        implementation("com.google.genai:google-genai:1.8.0")
 // 외부 api 요청시 사용
 	}
 

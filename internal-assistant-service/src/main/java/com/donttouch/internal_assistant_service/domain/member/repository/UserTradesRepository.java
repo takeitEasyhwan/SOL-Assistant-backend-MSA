@@ -1,7 +1,10 @@
 package com.donttouch.internal_assistant_service.domain.member.repository;
 
 import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
+import com.donttouch.internal_assistant_service.domain.expert.entity.vo.GuruVolumeRankDto;
+import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -39,4 +42,6 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
     );
 
     List<UserTrades> findByUserId(String userId);
+
+//    List<GuruVolumeRankDto> findTopGuruVolume(List<String> guruUserIds, Side trade, PageRequest of);
 }

@@ -1,4 +1,4 @@
-package com.donttouch.internal_assistant_service.domain.member.exception;
+package com.donttouch.external_assistant_service.domain.exception;
 
 public class StockNotFoundException extends RuntimeException{
     public StockNotFoundException(ErrorMessage message) {

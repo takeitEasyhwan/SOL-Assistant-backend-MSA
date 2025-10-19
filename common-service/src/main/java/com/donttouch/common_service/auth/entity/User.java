@@ -1,6 +1,5 @@
 package com.donttouch.common_service.auth.entity;
 
-import com.donttouch.common_service.auth.entity.vo.InvestmentType;
 import jakarta.persistence.*;
 import lombok.*;
 

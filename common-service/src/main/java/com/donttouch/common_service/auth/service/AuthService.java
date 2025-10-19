@@ -2,7 +2,7 @@ package com.donttouch.common_service.auth.service;
 
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.entity.UserAuth;
-import com.donttouch.common_service.auth.entity.vo.InvestmentType;
+import com.donttouch.common_service.auth.entity.InvestmentType;
 import com.donttouch.common_service.auth.entity.vo.RegisterRequest;
 import com.donttouch.common_service.auth.jwt.info.RefreshToken;
 import com.donttouch.common_service.auth.jwt.info.TokenProvider;

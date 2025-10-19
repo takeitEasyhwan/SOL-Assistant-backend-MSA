@@ -2,20 +2,16 @@ package com.donttouch.internal_assistant_service.domain.member.service;
 
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.repository.UserRepository;
-import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.repository.StockRepository;
 import com.donttouch.common_service.stock.entity.UserStocks;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserAssets;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.MyStockResponse;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeRequest;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeResponse;
-import com.donttouch.internal_assistant_service.domain.member.exception.ChartDataNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.exception.ErrorMessage;
-import com.donttouch.internal_assistant_service.domain.member.exception.StockNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.exception.UserNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.repository.DailyStockChartsRepository;
+import com.donttouch.internal_assistant_service.domain.exception.ErrorMessage;
+import com.donttouch.internal_assistant_service.domain.exception.StockNotFoundException;
+import com.donttouch.internal_assistant_service.domain.exception.UserNotFoundException;
 import com.donttouch.common_service.stock.repository.UserStocksRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserAssetsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserTradesRepository;
@@ -24,9 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +39,29 @@ public class UserTradesService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
+        UserAssets userAssets = userAssetsRepository.findByUserId(user.getId())
+                .orElse(null);
+
+        if (userAssets == null) {
+            userAssets = UserAssets.builder()
+                    .userAssetId(UUID.randomUUID().toString())
+                    .user(user)
+                    .principal(1_250_300.0)
+                    .totalBalance(1_250_300.0)
+                    .build();
+
+            userAssetsRepository.save(userAssets);
+        }
+
+        double totalBuyCost = request.getQuantity() * request.getPrice();
+        if (userAssets.getTotalBalance() < totalBuyCost) {
+            return TradeResponse.builder()
+                    .status("FAIL - INSUFFICIENT_BALANCE")
+                    .userId(user.getId())
+                    .stockId(stock.getId())
+                    .build();
+        }
+
         String tradeId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
 
@@ -61,49 +78,29 @@ public class UserTradesService {
         userTradesRepository.save(trade);
 
         UserStocks userStock = userStocksRepository.findByUserAndStock(user, stock).orElse(null);
+        double buyQty = request.getQuantity();
+        double buyPrice = request.getPrice();
 
         if (userStock == null) {
-            UserStocks newStock = new UserStocks();
-            newStock.setUserStockId(UUID.randomUUID().toString());
-            newStock.setUser(user);
-            newStock.setStock(stock);
-            newStock.setQuantity(request.getQuantity());
-            newStock.setCostBasis(request.getPrice());
-            userStocksRepository.save(newStock);
+            userStock = new UserStocks();
+            userStock.setUserStockId(UUID.randomUUID().toString());
+            userStock.setUser(user);
+            userStock.setStock(stock);
+            userStock.setQuantity(buyQty);
+            userStock.setCostBasis(buyPrice);
         } else {
             double oldQty = userStock.getQuantity();
             double oldAvg = userStock.getCostBasis();
-            double buyQty = request.getQuantity();
-            double buyPrice = request.getPrice();
-
             double newQty = oldQty + buyQty;
             double newAvg = ((oldQty * oldAvg) + (buyQty * buyPrice)) / newQty;
 
             userStock.setQuantity(newQty);
             userStock.setCostBasis(newAvg);
-
-//            userStocksRepository.save(userStock);
         }
+        userStocksRepository.save(userStock);
 
-        //asset
-        double totalBuyCost = request.getQuantity() * request.getPrice();
-        UserAssets userAssets = userAssetsRepository.findByUserId(user.getId())
-                .orElse(null);
-
-        if (userAssets == null) {
-            userAssets = UserAssets.builder()
-                    .userAssetId(UUID.randomUUID().toString())
-                    .user(user)
-                    .principal(1_250_300.0)
-                    .totalBalance(1_250_300.0 - totalBuyCost)
-                    .build();
-
-            userAssetsRepository.save(userAssets);
-        }
-        else {
-            userAssets.setTotalBalance(userAssets.getTotalBalance() - totalBuyCost);
-//            userAssetsRepository.save(userAssets);
-        }
+        userAssets.setTotalBalance(userAssets.getTotalBalance() - totalBuyCost);
+        userAssetsRepository.save(userAssets);
 
         return TradeResponse.builder()
                 .userTradeId(trade.getUserTradeId())
@@ -117,12 +114,48 @@ public class UserTradesService {
                 .build();
     }
 
+    @Transactional
     public TradeResponse sell(TradeRequest request) {
         Stock stock = stockRepository.findBySymbol(request.getSymbol())
                 .orElseThrow(() -> new StockNotFoundException(ErrorMessage.STOCK_NOT_FOUND));
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
+        UserAssets userAssets = userAssetsRepository.findByUserId(user.getId())
+                .orElse(null);
+
+        if (userAssets == null) {
+            userAssets = UserAssets.builder()
+                    .userAssetId(UUID.randomUUID().toString())
+                    .user(user)
+                    .principal(1_250_300.0)
+                    .totalBalance(1_250_300.0)
+                    .build();
+            userAssetsRepository.save(userAssets);
+        }
+
+        UserStocks userStock = userStocksRepository.findByUserAndStock(user, stock).orElse(null);
+
+        if (userStock == null) {
+            return TradeResponse.builder()
+                    .status("FAIL - NO_OWNED_STOCK")
+                    .userId(user.getId())
+                    .stockId(stock.getId())
+                    .build();
+        }
+
+        double sellQty = request.getQuantity();
+        double sellPrice = request.getPrice();
+        double currentQty = userStock.getQuantity();
+
+        if (currentQty < sellQty) {
+            return TradeResponse.builder()
+                    .status("FAIL - INSUFFICIENT_QUANTITY")
+                    .userId(user.getId())
+                    .stockId(stock.getId())
+                    .build();
+        }
 
         String tradeId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
@@ -132,12 +165,24 @@ public class UserTradesService {
                 .user(user)
                 .stock(stock)
                 .tradeTs(now)
-                .quantity(request.getQuantity())
-                .price(request.getPrice())
+                .quantity(sellQty)
+                .price(sellPrice)
                 .side(request.getSide())
                 .build();
 
         userTradesRepository.save(trade);
+
+        double newQty = currentQty - sellQty;
+        if (newQty <= 0) {
+            userStocksRepository.delete(userStock);
+        } else {
+            userStock.setQuantity(newQty);
+            userStocksRepository.save(userStock);
+        }
+
+        double totalSellAmount = sellQty * sellPrice;
+        userAssets.setTotalBalance(userAssets.getTotalBalance() + totalSellAmount);
+        userAssetsRepository.save(userAssets);
 
         return TradeResponse.builder()
                 .userTradeId(trade.getUserTradeId())
@@ -150,6 +195,5 @@ public class UserTradesService {
                 .status("SUCCESS")
                 .build();
     }
-
 
 }

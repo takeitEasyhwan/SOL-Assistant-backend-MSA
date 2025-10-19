@@ -1,6 +1,7 @@
 package com.donttouch.common_service.auth.entity.vo;
 
 
+import com.donttouch.common_service.auth.entity.InvestmentType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -2,7 +2,6 @@ package com.donttouch.internal_assistant_service.domain.member.service;
 
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.repository.UserRepository;
-import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
 import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.entity.UserStocks;
@@ -12,10 +11,10 @@ import com.donttouch.internal_assistant_service.domain.member.entity.UserAssets;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.*;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
-import com.donttouch.internal_assistant_service.domain.member.exception.AssetNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.exception.ChartDataNotFoundException;
-import com.donttouch.internal_assistant_service.domain.member.exception.ErrorMessage;
-import com.donttouch.internal_assistant_service.domain.member.exception.UserNotFoundException;
+import com.donttouch.internal_assistant_service.domain.exception.AssetNotFoundException;
+import com.donttouch.internal_assistant_service.domain.exception.ChartDataNotFoundException;
+import com.donttouch.internal_assistant_service.domain.exception.ErrorMessage;
+import com.donttouch.internal_assistant_service.domain.exception.UserNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.repository.DailyStockChartsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.HoldingPeriodDistributionRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserAssetsRepository;
@@ -79,14 +78,29 @@ public class UserService {
                 orElseThrow(()-> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
 
         return TradeTypeResponse.builder()
+                .username(user.getName())
                 .investmentType(user.getInvestmentType())
                 .build();
     }
 
 
     public TradeMoneyResponse getTradeMoney(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
         UserAssets userAssets = userAssetsRepository.findByUserId(userId)
-                .orElseThrow(() -> new AssetNotFoundException(ErrorMessage.STOCK_NOT_FOUND));
+                .orElse(null);
+
+        if (userAssets == null) {
+            userAssets = UserAssets.builder()
+                    .userAssetId(UUID.randomUUID().toString())
+                    .user(user)
+                    .principal(1_250_300.0)
+                    .totalBalance(1_250_300.0)
+                    .build();
+            userAssetsRepository.save(userAssets);
+        }
+
 
         return TradeMoneyResponse.builder()
                 .principal(userAssets.getPrincipal())

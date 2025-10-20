@@ -45,7 +45,7 @@ if [ -n "$CONFLICT_CONTAINER" ]; then
 fi
 
 # Docker 이미지 로드
-echo "[INFO] Loading Docker image..."
+echo "[INFO] Loading Docker image...."
 docker load -i $TAR_FILE
 
 # Dangling 이미지 정리

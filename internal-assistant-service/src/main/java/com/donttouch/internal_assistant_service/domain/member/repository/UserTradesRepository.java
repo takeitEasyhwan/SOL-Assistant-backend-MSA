@@ -2,7 +2,6 @@ package com.donttouch.internal_assistant_service.domain.member.repository;
 
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
-import com.donttouch.internal_assistant_service.domain.expert.entity.vo.GuruVolumeRankDto;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeHasMonthResponse;
@@ -19,17 +18,19 @@ import java.util.List;
 @Repository
 public interface UserTradesRepository extends JpaRepository<UserTrades, String> {
     @Query("""
-        SELECT new com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData(
-            t.tradeTs,
-            SUM(CASE WHEN t.side = 'BUY' THEN t.quantity ELSE 0 END),
-            SUM(CASE WHEN t.side = 'SELL' THEN t.quantity ELSE 0 END)
-        )
-        FROM UserTrades t
-        WHERE t.user.id IN :guruUserIds AND t.stock.id = :stockId
-        GROUP BY t.tradeTs
-        ORDER BY t.tradeTs
-    """)
-    List<GuruTradeData> aggregateDailyTradeStats(@Param("guruUserIds") List<String> guruUserIds, @Param("stockId") String stockId);
+    SELECT new com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData(
+        t.tradeTs,
+        COALESCE(SUM(CASE WHEN t.side = 'BUY' THEN t.quantity ELSE 0 END) * 1.0, 0.0),
+        COALESCE(SUM(CASE WHEN t.side = 'SELL' THEN t.quantity ELSE 0 END) * 1.0, 0.0)
+    )
+    FROM UserTrades t
+    WHERE t.user.id IN :guruUserIds AND t.stock.id = :stockId
+    GROUP BY t.tradeTs
+    ORDER BY t.tradeTs
+""")
+    List<GuruTradeData> aggregateDailyTradeStats(@Param("guruUserIds") List<String> guruUserIds,
+                                                 @Param("stockId") String stockId);
+
 
     @Query("""
         SELECT t
@@ -43,6 +44,7 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
 
     List<UserTrades> findByUserId(String userId);
 
@@ -62,5 +64,14 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
     """, nativeQuery = true)
     List<String> findDistinctTradeMonths(@Param("userId") String userId);
 
-//    List<GuruVolumeRankDto> findTopGuruVolume(List<String> guruUserIds, Side trade, PageRequest of);
+
+    List<UserTrades> findByUser_IdAndSide(String userId, Side side);
+
+    @Query("""
+    SELECT ut
+    FROM UserTrades ut
+    WHERE ut.user.id IN :userIds
+""")
+    List<UserTrades> findByUserIds(@Param("userIds") List<String> userIds);
+
 }

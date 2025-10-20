@@ -1,9 +1,6 @@
 package com.donttouch.internal_assistant_service.domain.expert.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 

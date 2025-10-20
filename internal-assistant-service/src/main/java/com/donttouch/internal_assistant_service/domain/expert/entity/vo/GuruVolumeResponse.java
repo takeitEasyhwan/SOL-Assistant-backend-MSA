@@ -5,20 +5,29 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class GuruVolumeResponse {
-    private Long stockId;
-    private String symbol;
-    private String stockName;
 
-    private Double prevClose;
-    private Double prevPrevClose;
-    private Double closeChangeRate;
+    private String date;
+    private List<GuruStockVolumeDto> stockVolumeList;
 
-    private Double prevVolume;
-    private Double prevPrevVolume;
-    private Double volumeChangeRate;
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class GuruStockVolumeDto {
+        private String stockSymbol;
+        private String stockName;
+        private double yesterdayClosePrice;
+        private double todayClosePrice;
+        private double priceChangePercent;
+        private double yesterdayVolume;
+        private double todayVolume;
+        private double volumeChangePercent;
+    }
 }

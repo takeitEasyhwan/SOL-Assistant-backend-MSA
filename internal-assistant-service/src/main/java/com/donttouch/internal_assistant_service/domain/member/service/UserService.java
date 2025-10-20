@@ -189,7 +189,7 @@ public class UserService {
                 .build();
     }
 
-    public TradeHasMonthResponse getTradeMonths(@Null String userId) {
+    public TradeHasMonthResponse getTradeMonths(String userId) {
         List<String> months = userTradesRepository.findDistinctTradeMonths(userId);
         return TradeHasMonthResponse.builder()
                 .months(months)

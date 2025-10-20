@@ -5,25 +5,25 @@ import com.donttouch.common_service.auth.repository.UserRepository;
 import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.entity.UserStocks;
+import com.donttouch.common_service.stock.repository.StockRepository;
 import com.donttouch.common_service.stock.repository.UserStocksRepository;
+import com.donttouch.internal_assistant_service.domain.exception.*;
 import com.donttouch.internal_assistant_service.domain.member.entity.HoldingPeriodDistribution;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserAssets;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.*;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
-import com.donttouch.internal_assistant_service.domain.exception.AssetNotFoundException;
-import com.donttouch.internal_assistant_service.domain.exception.ChartDataNotFoundException;
-import com.donttouch.internal_assistant_service.domain.exception.ErrorMessage;
-import com.donttouch.internal_assistant_service.domain.exception.UserNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.repository.DailyStockChartsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.HoldingPeriodDistributionRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserAssetsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserTradesRepository;
+import jakarta.validation.constraints.Null;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +36,7 @@ public class UserService {
     private final UserTradesRepository userTradesRepository;
     private final HoldingPeriodDistributionRepository holdingPeriodDistributionRepository;
     private final UserRepository userRepository;
+    private final StockRepository stockRepository;
 
     public List<MyStockResponse> getMyStocks(String userId) {
         List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
@@ -57,6 +58,7 @@ public class UserService {
 
                     Double diff = currentPrice - us.getCostBasis();
                     Double profit = (diff / us.getCostBasis()) * 100;
+                    LocalDateTime currentTradeTs = userTradesRepository.findLatestTradeTimestamp(userId, stock);
 
                     return MyStockResponse.builder()
                             .stockName(stock.getStockName())
@@ -68,9 +70,24 @@ public class UserService {
                             .costBasis(us.getCostBasis())
                             .diff(diff)
                             .profit(Math.round(profit * 100) / 100.0)
+                            .currentTradeTs(currentTradeTs)
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    public StockCountResponse getStockCount(String symbol, @Null String userId) {
+        List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
+        for(UserStocks s : userStocks) {
+            if(s.getStock().getSymbol().equals(symbol)) {
+                return StockCountResponse.builder()
+                        .quantity(s.getQuantity())
+                        .build();
+            }
+        }
+        return StockCountResponse.builder()
+                .quantity(0.0)
+                .build();
     }
 
     public TradeTypeResponse getTradeType(String userId) {
@@ -123,38 +140,81 @@ public class UserService {
     @Transactional(readOnly = true)
     public TradeProfitResponse getTradeProfit(String userId, LocalDate startDate) {
         List<UserTrades> trades = getMonthlyTrades(userId, startDate);
-        TradeSummary summary = calculateTradeSummary(trades);
-        List<TradeProfitResponse.TradeDetail> allTrades = toTradeDetailList(trades);
 
-        return buildTradeResponse(summary, allTrades);
+        // 거래일 순 정렬
+        trades.sort(Comparator.comparing(UserTrades::getTradeTs));
+
+        double realizedProfit = 0.0;
+        int realizedCount = 0;
+
+        // BUY 큐를 FIFO로 사용
+        Deque<UserTrades> buyQueue = new ArrayDeque<>();
+
+        for (UserTrades trade : trades) {
+            if (trade.getSide() == Side.BUY) {
+                buyQueue.addLast(trade);
+            } else if (trade.getSide() == Side.SELL) {
+                double remaining = trade.getQuantity();
+
+                while (remaining > 0 && !buyQueue.isEmpty()) {
+                    UserTrades buy = buyQueue.peekFirst();
+
+                    double matchedQty = Math.min(remaining, buy.getQuantity());
+                    double profitPerUnit = trade.getPrice() - buy.getPrice();
+                    realizedProfit += profitPerUnit * matchedQty;
+
+                    remaining -= matchedQty;
+                    buy.setQuantity(buy.getQuantity() - matchedQty);
+                    realizedCount++;
+
+                    if (buy.getQuantity() == 0) {
+                        buyQueue.removeFirst();
+                    }
+                }
+            }
+        }
+
+        // 실현수익률 계산
+        double totalInvested = trades.stream()
+                .filter(t -> t.getSide() == Side.SELL)
+                .mapToDouble(t -> t.getPrice() * t.getQuantity())
+                .sum();
+
+        double realizedPercent = totalInvested == 0 ? 0 : (realizedProfit / totalInvested) * 100.0;
+
+        return TradeProfitResponse.builder()
+                .realizedProfit(Math.round(realizedProfit))
+                .realizedPercent(Math.round(realizedPercent * 10) / 10.0)
+                .tradeList(toTradeDetailList(trades))
+                .build();
+    }
+
+    public TradeHasMonthResponse getTradeMonths(String userId) {
+        List<String> months = userTradesRepository.findDistinctTradeMonths(userId);
+        return TradeHasMonthResponse.builder()
+                .months(months)
+                .totalMonths(months.size())
+                .build();
     }
 
     @Transactional(readOnly = true)
     public TradeProfitResponse getTradeProfitSep(String userId, LocalDate startDate) {
         List<UserTrades> trades = getMonthlyTrades(userId, startDate);
 
-        List<UserTrades> buyTrades = new ArrayList<>();
-        List<UserTrades> sellTrades = new ArrayList<>();
-        for (UserTrades t : trades) {
-            if (t.getSide() == Side.BUY) buyTrades.add(t);
-            else if (t.getSide() == Side.SELL) sellTrades.add(t);
-        }
-
-        double buyAmount = buyTrades.stream().mapToDouble(t -> t.getPrice() * t.getQuantity()).sum();
-        double sellAmount = sellTrades.stream().mapToDouble(t -> t.getPrice() * t.getQuantity()).sum();
-        double realizedProfit = sellAmount - buyAmount;
-        double realizedPercent = buyAmount == 0 ? 0 : (realizedProfit / buyAmount) * 100.0;
+        TradeSummary summary = calculateTradeSummary(trades);
+        List<UserTrades> buyTrades = trades.stream().filter(t -> t.getSide() == Side.BUY).toList();
+        List<UserTrades> sellTrades = trades.stream().filter(t -> t.getSide() == Side.SELL).toList();
 
         List<TradeProfitResponse.TradeDetail> buyList = toTradeDetailList(buyTrades);
         List<TradeProfitResponse.TradeDetail> sellList = toTradeDetailList(sellTrades);
 
         return TradeProfitResponse.builder()
-                .realizedProfit(realizedProfit)
-                .realizedPercent(Math.round(realizedPercent * 10) / 10.0)
-                .sellCount(sellTrades.size())
-                .sellAmount(sellAmount)
-                .buyCount(buyTrades.size())
-                .buyAmount(buyAmount)
+                .realizedProfit(Math.round(summary.getRealizedProfit()))
+                .realizedPercent(Math.round(summary.getRealizedPercent() * 10) / 10.0)
+                .sellCount(summary.getSellCount())
+                .sellAmount(summary.getTotalSellAmount())
+                .buyCount(summary.getBuyCount())
+                .buyAmount(summary.getTotalBuyAmount())
                 .sellList(sellList)
                 .buyList(buyList)
                 .build();
@@ -171,24 +231,68 @@ public class UserService {
     }
 
     private TradeSummary calculateTradeSummary(List<UserTrades> trades) {
-        double totalBuy = 0, totalSell = 0;
-        int buyCount = 0, sellCount = 0;
+        if (trades == null || trades.isEmpty()) {
+            return new TradeSummary(0, 0, 0, 0, 0, 0);
+        }
 
-        for (UserTrades t : trades) {
-            double total = t.getPrice() * t.getQuantity();
-            if (t.getSide() == Side.BUY) {
-                totalBuy += total;
+        // 거래일순 정렬 (FIFO)
+        trades.sort(Comparator.comparing(UserTrades::getTradeTs));
+
+        Deque<UserTrades> buyQueue = new ArrayDeque<>();
+
+        double totalBuyAmount = 0.0;
+        double totalSellAmount = 0.0;
+        int buyCount = 0;
+        int sellCount = 0;
+
+        double realizedProfit = 0.0;
+        double realizedBaseAmount = 0.0; // 실현 손익률의 분모 (매도된 물량의 매입원가 합계)
+
+        for (UserTrades trade : trades) {
+            double amount = trade.getPrice() * trade.getQuantity();
+
+            if (trade.getSide() == Side.BUY) {
+                // BUY 거래는 큐에 쌓는다 (FIFO)
+                buyQueue.addLast(UserTrades.builder()
+                        .tradeTs(trade.getTradeTs())
+                        .price(trade.getPrice())
+                        .quantity(trade.getQuantity())
+                        .build());
+                totalBuyAmount += amount;
                 buyCount++;
-            } else if (t.getSide() == Side.SELL) {
-                totalSell += total;
+
+            } else if (trade.getSide() == Side.SELL) {
+                double remaining = trade.getQuantity();
+                totalSellAmount += amount;
                 sellCount++;
+
+                // SELL 수량만큼 BUY 큐에서 꺼내서 실현손익 계산
+                while (remaining > 0 && !buyQueue.isEmpty()) {
+                    UserTrades buy = buyQueue.peekFirst();
+                    double matchedQty = Math.min(remaining, buy.getQuantity());
+
+                    double profitPerUnit = trade.getPrice() - buy.getPrice();
+                    realizedProfit += profitPerUnit * matchedQty;
+                    realizedBaseAmount += buy.getPrice() * matchedQty;
+
+                    // FIFO 소진 처리
+                    remaining -= matchedQty;
+                    buy.setQuantity(buy.getQuantity() - matchedQty);
+                    if (buy.getQuantity() == 0) buyQueue.removeFirst();
+                }
             }
         }
 
-        double profit = totalSell - totalBuy;
-        double percent = totalBuy == 0 ? 0 : (profit / totalBuy) * 100.0;
+        double realizedPercent = realizedBaseAmount == 0 ? 0 : (realizedProfit / realizedBaseAmount) * 100.0;
 
-        return new TradeSummary(totalBuy, totalSell, buyCount, sellCount, profit, percent);
+        return new TradeSummary(
+                totalBuyAmount,
+                totalSellAmount,
+                buyCount,
+                sellCount,
+                realizedProfit,
+                realizedPercent
+        );
     }
 
     private List<TradeProfitResponse.TradeDetail> toTradeDetailList(List<UserTrades> trades) {
@@ -336,7 +440,5 @@ public class UserService {
 
         return matchedQuantity == 0 ? 0.0 : totalDays / matchedQuantity;
     }
-
-
 }
 

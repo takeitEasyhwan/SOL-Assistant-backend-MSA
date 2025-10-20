@@ -28,6 +28,13 @@ public class UserController {
         return ResponseEntity.ok(stockResponses);
     }
 
+    @GetMapping("/{symbol}/count")
+    @AssignCurrentMemberId
+    public ResponseEntity<StockCountResponse> getStockCount(@PathVariable String symbol, CurrentMemberIdRequest currentUser) {
+        StockCountResponse stockResponses = userService.getStockCount(symbol,currentUser.getUserUuid());
+        return ResponseEntity.ok(stockResponses);
+    }
+
     @GetMapping("/trade-profit/trade-type")
     @AssignCurrentMemberId
     public ResponseEntity<TradeTypeResponse> tradeProfitTradeInfo(CurrentMemberIdRequest currentUser) {
@@ -45,6 +52,12 @@ public class UserController {
     @AssignCurrentMemberId
     public ResponseEntity<TradeSectorResponse> getTradeSector(CurrentMemberIdRequest currentUser) {
         return ResponseEntity.ok(userService.getTradeSector(currentUser.getUserUuid()));
+    }
+
+    @GetMapping("/trade-profit/hasmonth")
+    @AssignCurrentMemberId
+    public ResponseEntity<TradeHasMonthResponse> getTradeMonth(CurrentMemberIdRequest currentUser) {
+        return ResponseEntity.ok(userService.getTradeMonths(currentUser.getUserUuid()));
     }
 
     @GetMapping("/trade-profit/thisMonth")

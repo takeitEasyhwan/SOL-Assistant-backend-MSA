@@ -22,7 +22,7 @@ jobs:
 
       # insight-assistant-service application.yml 복원
       - name: Restore insight-assistant-service application.yml
-        working-directory: ./insight-assistant-service
+        working-directory: ./chart-similarity-service
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.INSIGHT_YML }}" > src/main/resources/application.yml
@@ -35,7 +35,7 @@ jobs:
           echo "${{ secrets.COMMON_YML }}" > src/main/resources/application-common.yml
 
       - name: Check insight service resources
-        working-directory: ./insight-assistant-service
+        working-directory: ./chart-similarity-service
         run: ls -l src/main/resources/
 
       - name: Check common-service yml resources
@@ -44,7 +44,7 @@ jobs:
 
       # 3. Gradle 빌드
       - name: Build with Gradle
-        working-directory: ./insight-assistant-service
+        working-directory: ./chart-similarity-service
         run: |
           chmod +x gradlew
           ./gradlew clean build -x test
@@ -55,12 +55,12 @@ jobs:
 
       # 5. Docker 이미지 빌드 (ARM64)
       - name: Build Docker image for ARM64
-        working-directory: ./insight-assistant-service
+        working-directory: ./chart-similarity-service
         run: docker buildx build --platform linux/arm64 -t insight-assistant-service --load .
 
       # 6. Docker 이미지 tar로 저장
       - name: Save Docker image to tar
-        working-directory: ./insight-assistant-service
+        working-directory: ./chart-similarity-service
         run: docker save insight-assistant-service > insight-assistant-service.tar
 
       # 7. AWS 인증 설정
@@ -73,13 +73,13 @@ jobs:
 
       # 8. appspec.yml, deploy.sh, tar 파일을 zip으로 묶기
       - name: Create deployment zip
-        working-directory: ./insight-assistant-service
+        working-directory: ./chart-similarity-service
         run: |
           zip -r insight-assistant-service-${{ github.sha }}.zip appspec.yml deploy/*.sh insight-assistant-service.tar
 
       # 9. S3에 업로드
       - name: Upload zip to S3
-        working-directory: ./insight-assistant-service
+        working-directory: ./chart-similarity-service
         run: aws s3 cp insight-assistant-service-${{ github.sha }}.zip s3://sol-assistant-s3/insight-assistant-service/
 
       # 10. CodeDeploy 배포

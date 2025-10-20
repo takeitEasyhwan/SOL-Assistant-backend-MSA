@@ -31,6 +31,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class StockSignalRes {
     private String stockName;
+    private String signalType;
     private List<Map<String, Object>> trendToday;
     private List<Map<String, Object>> trendPastScaled;
     private String todayDate;

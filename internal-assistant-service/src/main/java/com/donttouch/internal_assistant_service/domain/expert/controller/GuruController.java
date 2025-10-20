@@ -3,10 +3,8 @@ package com.donttouch.internal_assistant_service.domain.expert.controller;
 
 import com.donttouch.common_service.auth.entity.InvestmentType;
 import com.donttouch.common_service.global.aop.AssignCurrentMemberId;
-import com.donttouch.internal_assistant_service.domain.expert.entity.vo.GuruTradeResponse;
-import com.donttouch.internal_assistant_service.domain.expert.entity.vo.GuruVolumeResponse;
-import com.donttouch.internal_assistant_service.domain.expert.entity.vo.UserTrackingRequest;
-import com.donttouch.internal_assistant_service.domain.expert.entity.vo.UserTrackingResponse;
+import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
+import com.donttouch.internal_assistant_service.domain.expert.entity.vo.*;
 import com.donttouch.internal_assistant_service.domain.expert.service.GuruService;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.service.UserService;
@@ -20,26 +18,31 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/internal/expertt")
+@RequestMapping("/api/v1/internal/expert")
 public class GuruController {
     private final GuruService guruService;
 
-//    @GetMapping("/volume/{type}/{period}")
-//    public ResponseEntity<List<GuruVolumeResponse>> getGuruVolumeRank(@PathVariable String trade, @PathVariable String type) {
-//        Side side = Side.valueOf(trade.toUpperCase());
-//        InvestmentType investmentType = InvestmentType.valueOf(type.toUpperCase());
-//        List<GuruVolumeResponse> response = guruService.getTopVolumeStocks(side, investmentType);
-//        return ResponseEntity.ok(response);
-//    }
-
-    @GetMapping("/view")
-    public void guruView() {
-
+    @GetMapping("/volume/{side}/{investmentType}")
+    public ResponseEntity<GuruVolumeResponse> getGuruVolumeRank(@PathVariable("side") Side side, @PathVariable("investmentType") InvestmentType investmentType) {
+        GuruVolumeResponse guruVolumeResponse = guruService.getTopVolumeStocks(side, investmentType);
+        return new ResponseEntity<>(guruVolumeResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/{symbol}/{type}")
-    public ResponseEntity<GuruTradeResponse> getGuruTrade(@PathVariable String symbol, @PathVariable String type) {
-        InvestmentType investmentType = InvestmentType.valueOf(type.toUpperCase());
+    @GetMapping("/view/{investmentType}")
+    public ResponseEntity<GuruVolumeResponse> guruView(@PathVariable("investmentType") InvestmentType investmentType) {
+        GuruVolumeResponse guruViewRankResponse = guruService.getViewStocksGuru(investmentType);
+        return new ResponseEntity<>(guruViewRankResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/my-view")
+    @AssignCurrentMemberId
+    public ResponseEntity<GuruVolumeResponse> guruMyView(CurrentMemberIdRequest currentMemberIdRequest) {
+        GuruVolumeResponse guruMViewRaynkResponse = guruService.getMyViewStocksGuru(currentMemberIdRequest);
+        return new ResponseEntity<>(guruMViewRaynkResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/{symbol}/{investmentType}")
+    public ResponseEntity<GuruTradeResponse> getGuruTrade(@PathVariable("symbol") String symbol, @PathVariable("investmentType") InvestmentType investmentType) {
         GuruTradeResponse response = guruService.getGuruTrade(symbol, investmentType);
         return ResponseEntity.ok(response);
     }

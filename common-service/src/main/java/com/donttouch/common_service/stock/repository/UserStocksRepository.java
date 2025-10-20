@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface UserStocksRepository extends JpaRepository<UserStocks, String> {
@@ -35,13 +36,14 @@ public interface UserStocksRepository extends JpaRepository<UserStocks, String> 
     List<UserStocks> findByUserId(@Param("userId") String userId);
 
     @Query("""
-        SELECT SUM(us.quantity)
-        FROM UserStocks us
-        WHERE us.user.id IN :guruUserIds
-        AND us.stock.id = :stockId
-    """)
+    SELECT SUM(us.quantity)
+    FROM UserStocks us
+    WHERE us.user.id IN :guruUserIds
+    AND us.stock.id = :stockId
+""")
     Double sumTotalHoldings(
-            @Param("guruUserIds") List<String> guruUserIds,
-            @Param("stockId") String stockId
+            @Param("guruUserIds") List<String> guruUserIds,  // UUID로 변경
+            @Param("stockId") String stockId                 // UUID로 변경
     );
+
 }

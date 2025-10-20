@@ -18,15 +18,15 @@ public class ScheduledUserTracking {
         guruService.flushRedisToKafka();
     }
 
-    @Scheduled
-    public void guruVolumeBatch() {
-        guruBatchService.guruVolumeBatch();
-    }
-
-
-    @Scheduled
-    public void guruTrackingViewBatch() {
-        guruBatchService.guruTrackingViewBatch();
-    }
+//    @Scheduled
+//    public void guruVolumeBatch() {
+//        guruBatchService.guruVolumeBatch();
+//    }
+//
+//
+//    @Scheduled
+//    public void guruTrackingViewBatch() {
+//        guruBatchService.guruTrackingViewBatch();
+//    }
 
 }

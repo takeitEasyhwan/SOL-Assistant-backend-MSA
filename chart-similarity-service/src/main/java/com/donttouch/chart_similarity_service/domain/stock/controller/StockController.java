@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-
 @RestController
 @RequestMapping("/api/v1/insight/chart-similarity")
 @RequiredArgsConstructor

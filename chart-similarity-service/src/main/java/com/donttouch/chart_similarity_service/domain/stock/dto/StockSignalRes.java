@@ -38,4 +38,5 @@ public class StockSignalRes {
     private String pastDate;
     private String description;
     private String descriptionDetail;
+    private boolean isStockHave;
 }

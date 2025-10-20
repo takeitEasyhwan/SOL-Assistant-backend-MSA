@@ -37,10 +37,14 @@ public class StockService {
     public StockSignalRes getSignalInfo(String stockCode, String signalType, String userId) {
         log.info("📩 종목별 시그널 조회 요청: code={}, type={}", stockCode, signalType);
 
-        if(stockRepository.findBySymbol(stockCode).isEmpty() || !userStocksRepository.existsByUserIdAndStock_Symbol(userId, stockCode))
-            return StockSignalRes.builder().build();
-
         if (signalType.equalsIgnoreCase("buy")) {
+
+            if (signalBuyRepository.findByStockCode(stockCode).isEmpty()) {
+                return StockSignalRes.builder().build();
+            }
+            boolean isStock = stockRepository.findBySymbol(stockCode).isPresent();
+            boolean isHave = userStocksRepository.existsByUserIdAndStock_Symbol(userId, stockCode);
+
 
             var signal = signalBuyRepository.findTopByStockCodeOrderByCreatedAtDesc(stockCode)
                     .orElseThrow(() -> new RuntimeException("매수 시그널 없음"));
@@ -57,9 +61,19 @@ public class StockService {
                     .signalType(explain.getSignalType())
                     .description(explain.getDescription())
                     .descriptionDetail(explain.getDescriptionDetail())
+                    .isStockHave(isStock || isHave)
                     .build();
 
-        } else if (signalType.equalsIgnoreCase("sell")) {
+            }
+        else if (signalType.equalsIgnoreCase("sell")) {
+
+            if (signalSellRepository.findByStockCode(stockCode).isEmpty()) {
+                return StockSignalRes.builder().build();
+            }
+            boolean isStock = stockRepository.findBySymbol(stockCode).isPresent();
+            boolean isHave = userStocksRepository.existsByUserIdAndStock_Symbol(userId, stockCode);
+
+
             var signal = signalSellRepository.findTopByStockCodeOrderByCreatedAtDesc(stockCode)
                     .orElseThrow(() -> new RuntimeException("매도 시그널 없음"));
 
@@ -75,6 +89,7 @@ public class StockService {
                     .signalType(explain.getSignalType())
                     .description(explain.getDescription())
                     .descriptionDetail(explain.getDescriptionDetail())
+                    .isStockHave(isStock || isHave)
                     .build();
 
         } else {

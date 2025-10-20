@@ -36,8 +36,8 @@ public class UserService {
     private final UserTradesRepository userTradesRepository;
     private final HoldingPeriodDistributionRepository holdingPeriodDistributionRepository;
     private final UserRepository userRepository;
-    private final StockRepository stockRepository;
 
+    @Transactional(readOnly = true)
     public List<MyStockResponse> getMyStocks(String userId) {
         List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
 
@@ -76,6 +76,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public StockCountResponse getStockCount(String symbol, @Null String userId) {
         List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
         for(UserStocks s : userStocks) {
@@ -90,6 +91,7 @@ public class UserService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public TradeTypeResponse getTradeType(String userId) {
         User user = userRepository.findById(userId).
                 orElseThrow(()-> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
@@ -100,7 +102,7 @@ public class UserService {
                 .build();
     }
 
-
+    @Transactional(readOnly = true)
     public TradeMoneyResponse getTradeMoney(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
@@ -117,7 +119,6 @@ public class UserService {
                     .build();
             userAssetsRepository.save(userAssets);
         }
-
 
         return TradeMoneyResponse.builder()
                 .principal(userAssets.getPrincipal())
@@ -189,6 +190,7 @@ public class UserService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public TradeHasMonthResponse getTradeMonths(String userId) {
         List<String> months = userTradesRepository.findDistinctTradeMonths(userId);
         return TradeHasMonthResponse.builder()
@@ -379,6 +381,7 @@ public class UserService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public HoldingPeriodResponse getTradeRecord(String userId) {
         List<UserTrades> trades = userTradesRepository.findByUserId(userId);
         double avgHoldingDays = calculateAverageHoldingDays(trades);

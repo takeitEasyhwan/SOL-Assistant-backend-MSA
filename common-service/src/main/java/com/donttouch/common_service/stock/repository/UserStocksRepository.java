@@ -42,8 +42,8 @@ public interface UserStocksRepository extends JpaRepository<UserStocks, String> 
     AND us.stock.id = :stockId
 """)
     Double sumTotalHoldings(
-            @Param("guruUserIds") List<String> guruUserIds,  // UUID로 변경
-            @Param("stockId") String stockId                 // UUID로 변경
+            @Param("guruUserIds") List<String> guruUserIds,
+            @Param("stockId") String stockId
     );
 
 }

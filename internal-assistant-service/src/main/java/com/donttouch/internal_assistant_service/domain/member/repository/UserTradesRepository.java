@@ -17,20 +17,20 @@ import java.util.List;
 
 @Repository
 public interface UserTradesRepository extends JpaRepository<UserTrades, String> {
+
     @Query("""
-    SELECT new com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData(
-        t.tradeTs,
-        COALESCE(SUM(CASE WHEN t.side = 'BUY' THEN t.quantity ELSE 0 END) * 1.0, 0.0),
-        COALESCE(SUM(CASE WHEN t.side = 'SELL' THEN t.quantity ELSE 0 END) * 1.0, 0.0)
-    )
-    FROM UserTrades t
-    WHERE t.user.id IN :guruUserIds AND t.stock.id = :stockId
-    GROUP BY t.tradeTs
-    ORDER BY t.tradeTs
-""")
+        SELECT new com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData(
+            t.tradeTs,
+            SUM(CASE WHEN t.side = 'BUY' THEN t.quantity ELSE 0 END),
+            SUM(CASE WHEN t.side = 'SELL' THEN t.quantity ELSE 0 END)
+        )
+        FROM UserTrades t
+        WHERE t.user.id IN :guruUserIds AND t.stock.id = :stockId
+        GROUP BY t.tradeTs
+        ORDER BY t.tradeTs
+    """)
     List<GuruTradeData> aggregateDailyTradeStats(@Param("guruUserIds") List<String> guruUserIds,
                                                  @Param("stockId") String stockId);
-
 
     @Query("""
         SELECT t

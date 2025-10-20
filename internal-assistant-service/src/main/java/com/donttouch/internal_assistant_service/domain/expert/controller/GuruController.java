@@ -7,13 +7,11 @@ import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
 import com.donttouch.internal_assistant_service.domain.expert.entity.vo.*;
 import com.donttouch.internal_assistant_service.domain.expert.service.GuruService;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
-import com.donttouch.internal_assistant_service.domain.member.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -24,14 +22,14 @@ public class GuruController {
 
     @GetMapping("/volume/{side}/{investmentType}")
     public ResponseEntity<GuruVolumeResponse> getGuruVolumeRank(@PathVariable("side") Side side, @PathVariable("investmentType") InvestmentType investmentType) {
-        GuruVolumeResponse guruVolumeResponse = guruService.getTopVolumeStocks(side, investmentType);
-        return new ResponseEntity<>(guruVolumeResponse, HttpStatus.OK);
+        GuruVolumeResponse getGuruVolumeRank = guruService.getGuruVolumeRank(side, investmentType);
+        return new ResponseEntity<>(getGuruVolumeRank, HttpStatus.OK);
     }
 
     @GetMapping("/view/{investmentType}")
     public ResponseEntity<GuruVolumeResponse> guruView(@PathVariable("investmentType") InvestmentType investmentType) {
-        GuruVolumeResponse guruViewRankResponse = guruService.getViewStocksGuru(investmentType);
-        return new ResponseEntity<>(guruViewRankResponse, HttpStatus.OK);
+        GuruVolumeResponse guruViewResponse = guruService.guruView(investmentType);
+        return new ResponseEntity<>(guruViewResponse, HttpStatus.OK);
     }
 
     @GetMapping("/my-view")
@@ -44,11 +42,10 @@ public class GuruController {
     @GetMapping("/{symbol}/{investmentType}")
     public ResponseEntity<GuruTradeResponse> getGuruTrade(@PathVariable("symbol") String symbol, @PathVariable("investmentType") InvestmentType investmentType) {
         GuruTradeResponse response = guruService.getGuruTrade(symbol, investmentType);
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/tracking")
-    @AssignCurrentMemberId
     public ResponseEntity<UserTrackingResponse> tracking(@RequestBody UserTrackingRequest userTrackingRequest) {
         UserTrackingResponse userTrackingBatchResponse = guruService.collectBatch(userTrackingRequest.getEvents());
         return new ResponseEntity<>(userTrackingBatchResponse, HttpStatus.CREATED);

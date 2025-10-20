@@ -8,7 +8,6 @@ BLUE_PORT=8081
 GREEN_PORT=8082
 PORT_FILE="/home/ec2-user/insight_port.txt"
 
-# Bastion 서버 정보
 BASTION_USER="ec2-user"
 BASTION_HOST="43.203.242.57"
 PEM_KEY="/home/ec2-user/jojeonghyeon-ec2-key1.pem"
@@ -31,18 +30,18 @@ fi
 echo "[INFO] Deploying new container to Idle Port: $IDLE_PORT"
 echo "$IDLE_PORT" > "$PORT_FILE"
 
-# 기존 Idle 컨테이너 종료 및 삭제 (모든 상태 포함)
-EXISTING_CONTAINER=$(docker ps -a -q -f "publish=$IDLE_PORT")
+# 1️⃣ 이름 기반 컨테이너 제거 (항상 먼저)
+EXISTING_CONTAINER=$(docker ps -a -q -f "name=${APP_NAME}_${IDLE_PORT}")
 if [ -n "$EXISTING_CONTAINER" ]; then
-    echo "[INFO] Removing old container on port $IDLE_PORT..."
+    echo "[INFO] Removing existing container with name: ${APP_NAME}_${IDLE_PORT}"
     docker rm -f "$EXISTING_CONTAINER" || true
 fi
 
-# 이름 충돌 제거
-CONFLICT_CONTAINER=$(docker ps -a -q -f "name=${APP_NAME}_${IDLE_PORT}")
-if [ -n "$CONFLICT_CONTAINER" ]; then
-    echo "[WARN] Removing conflicting container name: ${APP_NAME}_${IDLE_PORT}"
-    docker rm -f "$CONFLICT_CONTAINER" || true
+# 2️⃣ 포트 충돌 컨테이너 제거 (Optional, 안전)
+PORT_CONFLICT=$(docker ps -a -q -f "publish=$IDLE_PORT")
+if [ -n "$PORT_CONFLICT" ]; then
+    echo "[INFO] Removing container using port $IDLE_PORT..."
+    docker rm -f "$PORT_CONFLICT" || true
 fi
 
 # Docker 이미지 존재 체크

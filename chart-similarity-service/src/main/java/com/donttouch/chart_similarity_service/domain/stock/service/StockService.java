@@ -4,6 +4,10 @@ import com.donttouch.chart_similarity_service.domain.my_stock.repository.SignalB
 import com.donttouch.chart_similarity_service.domain.my_stock.repository.SignalSellRepository;
 import com.donttouch.chart_similarity_service.domain.stock.dto.StockSignalRes;
 import com.donttouch.chart_similarity_service.domain.stock.repository.SignalExplainRepository;
+import com.donttouch.common_service.stock.entity.Stock;
+import com.donttouch.common_service.stock.entity.UserStocks;
+import com.donttouch.common_service.stock.repository.StockRepository;
+import com.donttouch.common_service.stock.repository.UserStocksRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +30,18 @@ public class StockService {
     private final SignalBuyRepository signalBuyRepository;
     private final SignalSellRepository signalSellRepository;
     private final SignalExplainRepository signalExplainRepository;
+    private final StockRepository stockRepository;
+    private final UserStocksRepository userStocksRepository;
     private final ObjectMapper objectMapper = new ObjectMapper(); // ✅ JSON 파서
 
-    public StockSignalRes getSignalInfo(String stockCode, String signalType) {
+    public StockSignalRes getSignalInfo(String stockCode, String signalType, String userId) {
         log.info("📩 종목별 시그널 조회 요청: code={}, type={}", stockCode, signalType);
 
+        if(stockRepository.findBySymbol(stockCode).isEmpty() || !userStocksRepository.existsByUserIdAndStock_Symbol(userId, stockCode))
+            return StockSignalRes.builder().build();
+
         if (signalType.equalsIgnoreCase("buy")) {
+
             var signal = signalBuyRepository.findTopByStockCodeOrderByCreatedAtDesc(stockCode)
                     .orElseThrow(() -> new RuntimeException("매수 시그널 없음"));
 

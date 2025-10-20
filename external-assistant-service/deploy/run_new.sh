@@ -16,8 +16,7 @@ EXTERNAL_INC="/home/ec2-user/includes/external_port.inc"
 
 echo "[INFO] === Checking Active Port on Bastion ==="
 CURRENT_PORT=$(ssh -i "$PEM_KEY" -o StrictHostKeyChecking=no \
-    "$BASTION_USER@$BASTION_HOST" "grep -oP '[0-
-    9]+' $EXTERNAL_INC")
+    "$BASTION_USER@$BASTION_HOST" "grep -oP '[0-9]+' $EXTERNAL_INC")
 echo "[INFO] Current Nginx external_port: $CURRENT_PORT"
 
 # Idle 포트 결정
@@ -31,11 +30,12 @@ echo "[INFO] Deploying new container to Idle Port: $IDLE_PORT"
 # Idle 포트 저장
 echo "$IDLE_PORT" > $PORT_FILE
 
-# 기존 Idle 컨테이너 종료
-EXISTING_CONTAINER=$(docker ps -q -f "publish=$IDLE_PORT")
+# 기존 Idle 컨테이너 종료 및 삭제 (모든 상태 포함)
+EXISTING_CONTAINER=$(docker ps -a -q -f "publish=$IDLE_PORT")
 if [ -n "$EXISTING_CONTAINER" ]; then
     echo "[INFO] Removing old container on port $IDLE_PORT..."
-    docker rm -f $EXISTING_CONTAINER
+    docker stop $EXISTING_CONTAINER || true
+    docker rm -f $EXISTING_CONTAINER || true
 fi
 
 # Docker 이미지 로드
@@ -45,6 +45,6 @@ docker load -i $TAR_FILE
 # Dangling 이미지 정리
 docker image prune -f -f
 
-# 새 컨테이너 실행 (컨테이너 내부는 항상 8081)
+# 새 컨테이너 실행
 docker run -d --name ${APP_NAME}_${IDLE_PORT} -p $IDLE_PORT:8081 $APP_NAME:latest
-echo "[INFO] New container running on port $IDLE_PORT"
+echo "[INFO] ✅ New container running on port $IDLE_PORT"

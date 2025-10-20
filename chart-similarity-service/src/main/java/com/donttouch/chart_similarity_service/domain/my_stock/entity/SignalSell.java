@@ -60,7 +60,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 @Entity
-@Table(name = "signal_buy")
+@Table(name = "signal_sell")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

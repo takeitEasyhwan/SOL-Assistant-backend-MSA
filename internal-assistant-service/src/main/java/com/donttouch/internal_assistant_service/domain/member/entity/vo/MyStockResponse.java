@@ -3,6 +3,8 @@ package com.donttouch.internal_assistant_service.domain.member.entity.vo;
 import com.donttouch.common_service.stock.entity.Market;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -18,4 +20,5 @@ public class MyStockResponse {
     private Double costBasis;
     private Double diff;
     private Double profit;
+    private LocalDateTime currentTradeTs;
 }

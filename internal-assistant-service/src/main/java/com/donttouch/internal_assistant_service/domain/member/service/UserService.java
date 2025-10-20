@@ -5,25 +5,25 @@ import com.donttouch.common_service.auth.repository.UserRepository;
 import com.donttouch.common_service.stock.entity.DailyStockCharts;
 import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.common_service.stock.entity.UserStocks;
+import com.donttouch.common_service.stock.repository.StockRepository;
 import com.donttouch.common_service.stock.repository.UserStocksRepository;
+import com.donttouch.internal_assistant_service.domain.exception.*;
 import com.donttouch.internal_assistant_service.domain.member.entity.HoldingPeriodDistribution;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserAssets;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import com.donttouch.internal_assistant_service.domain.member.entity.vo.*;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
-import com.donttouch.internal_assistant_service.domain.exception.AssetNotFoundException;
-import com.donttouch.internal_assistant_service.domain.exception.ChartDataNotFoundException;
-import com.donttouch.internal_assistant_service.domain.exception.ErrorMessage;
-import com.donttouch.internal_assistant_service.domain.exception.UserNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.repository.DailyStockChartsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.HoldingPeriodDistributionRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserAssetsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserTradesRepository;
+import jakarta.validation.constraints.Null;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +36,7 @@ public class UserService {
     private final UserTradesRepository userTradesRepository;
     private final HoldingPeriodDistributionRepository holdingPeriodDistributionRepository;
     private final UserRepository userRepository;
+    private final StockRepository stockRepository;
 
     public List<MyStockResponse> getMyStocks(String userId) {
         List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
@@ -57,6 +58,7 @@ public class UserService {
 
                     Double diff = currentPrice - us.getCostBasis();
                     Double profit = (diff / us.getCostBasis()) * 100;
+                    LocalDateTime currentTradeTs = userTradesRepository.findLatestTradeTimestamp(userId, stock);
 
                     return MyStockResponse.builder()
                             .stockName(stock.getStockName())
@@ -68,9 +70,24 @@ public class UserService {
                             .costBasis(us.getCostBasis())
                             .diff(diff)
                             .profit(Math.round(profit * 100) / 100.0)
+                            .currentTradeTs(currentTradeTs)
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    public StockCountResponse getStockCount(String symbol, @Null String userId) {
+        List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
+        for(UserStocks s : userStocks) {
+            if(s.getStock().getSymbol().equals(symbol)) {
+                return StockCountResponse.builder()
+                        .quantity(s.getQuantity())
+                        .build();
+            }
+        }
+        return StockCountResponse.builder()
+                .quantity(0.0)
+                .build();
     }
 
     public TradeTypeResponse getTradeType(String userId) {
@@ -127,6 +144,14 @@ public class UserService {
         List<TradeProfitResponse.TradeDetail> allTrades = toTradeDetailList(trades);
 
         return buildTradeResponse(summary, allTrades);
+    }
+
+    public TradeHasMonthResponse getTradeMonths(@Null String userId) {
+        List<String> months = userTradesRepository.findDistinctTradeMonths(userId);
+        return TradeHasMonthResponse.builder()
+                .months(months)
+                .totalMonths(months.size())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -336,7 +361,5 @@ public class UserService {
 
         return matchedQuantity == 0 ? 0.0 : totalDays / matchedQuantity;
     }
-
-
 }
 

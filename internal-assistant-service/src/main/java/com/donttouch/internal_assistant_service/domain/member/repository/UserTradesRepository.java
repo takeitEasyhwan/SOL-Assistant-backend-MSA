@@ -1,9 +1,12 @@
 package com.donttouch.internal_assistant_service.domain.member.repository;
 
+import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
 import com.donttouch.internal_assistant_service.domain.expert.entity.vo.GuruVolumeRankDto;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
+import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeHasMonthResponse;
+import jakarta.validation.constraints.Null;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -42,6 +45,22 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
     );
 
     List<UserTrades> findByUserId(String userId);
+
+    @Query("""
+        SELECT MAX(t.tradeTs)
+        FROM UserTrades t
+        WHERE t.user.id = :userId
+          AND t.stock = :stock
+    """)
+    LocalDateTime findLatestTradeTimestamp(String userId, Stock stock);
+
+    @Query(value = """
+        SELECT DISTINCT DATE_FORMAT(trade_ts, '%Y-%m') AS month
+        FROM user_trades
+        WHERE user_id = :userId
+        ORDER BY month DESC
+    """, nativeQuery = true)
+    List<String> findDistinctTradeMonths(@Param("userId") String userId);
 
 //    List<GuruVolumeRankDto> findTopGuruVolume(List<String> guruUserIds, Side trade, PageRequest of);
 }

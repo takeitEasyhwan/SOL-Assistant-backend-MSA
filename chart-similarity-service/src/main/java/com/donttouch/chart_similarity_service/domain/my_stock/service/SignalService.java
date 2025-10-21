@@ -3,10 +3,12 @@ package com.donttouch.chart_similarity_service.domain.my_stock.service;
 import com.donttouch.chart_similarity_service.domain.my_stock.entity.SignalBuy;
 import com.donttouch.chart_similarity_service.domain.my_stock.entity.SignalSell;
 import com.donttouch.chart_similarity_service.domain.my_stock.entity.Stocks;
+import com.donttouch.chart_similarity_service.domain.my_stock.entity.vo.StockMainSignalResponse;
 import com.donttouch.chart_similarity_service.domain.my_stock.repository.SignalBuyRepository;
 import com.donttouch.chart_similarity_service.domain.my_stock.repository.SignalSellRepository;
 import com.donttouch.chart_similarity_service.domain.my_stock.repository.StocksRepository;
 import com.donttouch.chart_similarity_service.domain.my_stock.repository.UserStockRepository;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -112,5 +114,18 @@ public class SignalService {
             log.error("❌ 시그널 조회 중 오류 발생: {}", e.getMessage(), e);
             return Optional.empty();
         }
+    }
+
+    public StockMainSignalResponse getStockMainSignal(String symbol, String userId) {
+
+        boolean buySignal = signalBuyRepository.existsByStockCode(symbol);
+        boolean sellSignal = signalSellRepository.existsByStockCode(symbol);
+
+
+        return StockMainSignalResponse.builder()
+                .symbol(symbol)
+                .buySignal(buySignal)
+                .sellSignal(sellSignal)
+                .build();
     }
 }

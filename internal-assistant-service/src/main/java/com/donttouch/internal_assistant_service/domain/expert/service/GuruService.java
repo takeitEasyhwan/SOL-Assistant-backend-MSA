@@ -317,4 +317,70 @@ public class GuruService {
         });
     }
 
+    @Transactional(readOnly = true)
+    public UserGuruMainResponse getStockSymbolGuru(String symbol, CurrentMemberIdRequest currentMemberIdRequest) {
+        String userId = currentMemberIdRequest.getUserUuid();
+
+        User user = userRepository.findById(userId).orElse(null);
+        Stock userStock = stockRepository.findBySymbol(symbol).orElse(null);
+
+        InvestmentType userType = user.getInvestmentType();
+
+        boolean isDailyGuru = stockViewBatchRepository.existsByStockIdAndStockPeriod(userStock.getId(), userType);
+
+
+        List<String> guruUserIds = switch (userType) {
+            case DAY -> guruDayRepository.findAllUserIds();
+            case SWING -> guruSwingRepository.findAllUserIds();
+            case HOLD -> guruHoldRepository.findAllUserIds();
+        };
+
+        List<UserTrades> identialsUserTradeGuru = userTradesRepository.findLatestTradesByGuruUserIds(guruUserIds, userStock.getId());
+
+        return buildGuruTradeResponse(identialsUserTradeGuru, isDailyGuru);
+    }
+
+    public UserGuruMainResponse buildGuruTradeResponse(List<UserTrades> trades, boolean isDailyGuru) {
+        if (trades.isEmpty()) return null;
+
+        // 1. 날짜별, 사이드별 합계 계산
+        double latestSell = 0.0;
+        double latestBuy = 0.0;
+        double prevSell = 0.0;
+        double prevBuy = 0.0;
+
+        for (UserTrades t : trades) {
+            boolean isLatest = t.getTradeTs().toLocalDate().equals(trades.get(0).getTradeTs().toLocalDate());
+            if (isLatest) {
+                if (t.getSide() == Side.SELL) latestSell += t.getQuantity();
+                else if (t.getSide() == Side.BUY) latestBuy += t.getQuantity();
+            } else {
+                if (t.getSide() == Side.SELL) prevSell += t.getQuantity();
+                else if (t.getSide() == Side.BUY) prevBuy += t.getQuantity();
+            }
+        }
+
+        // 2. 차이 계산
+        double sellDiff = latestSell - prevSell;
+        double buyDiff = prevSell - prevBuy;
+
+        // 3. 퍼센트 계산
+        double totalLatest = latestBuy + latestSell;
+        double totalPrev = prevBuy + prevSell;
+
+        double guruSellPercent = totalLatest != 0 ? (sellDiff / totalLatest) * 100 : 0;
+        double guruBuyPercent = totalPrev != 0 ? (buyDiff / totalPrev) * 100 : 0;
+
+        // 4. Response 객체 생성
+        return UserGuruMainResponse.builder()
+                .latestSellQuantity(latestSell)
+                .latestBuyQuantity(latestBuy)
+                .prevSellQuantity(prevSell)
+                .prevBuyQuantity(prevBuy)
+                .guruSellPercent(guruSellPercent)
+                .guruBuyPercent(guruBuyPercent)
+                .isDailyGuru(isDailyGuru)
+                .build();
+    }
+
 }

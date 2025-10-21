@@ -16,4 +16,6 @@ public interface StockViewBatchRepository extends JpaRepository<StockViewBatch, 
     List<StockViewBatch> findByInvestment(@Param("investmentType") InvestmentType investmentType);
 
     void deleteByStockPeriod(InvestmentType type);
+
+    boolean existsByStockIdAndStockPeriod(String stockId, InvestmentType stockPeriod);
 }

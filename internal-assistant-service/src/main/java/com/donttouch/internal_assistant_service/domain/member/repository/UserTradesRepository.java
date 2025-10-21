@@ -1,7 +1,6 @@
 package com.donttouch.internal_assistant_service.domain.member.repository;
 
 import com.donttouch.common_service.stock.entity.Stock;
-import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -87,5 +86,27 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
       AND ut.user_id IN :guruUserIds
     """, nativeQuery = true)
     List<UserTrades> findLatestTwoDaysByStockIds(@Param("stockIds") List<String> stockIds,@Param("guruUserIds") List<String> guruUserIds);
+
+
+    @Query(value = """
+    SELECT ut.*
+    FROM user_trades ut
+    WHERE ut.user_id IN (:guruUserIds)
+      AND ut.stock_id = :stockId
+      AND DATE(ut.trade_ts) IN (
+          SELECT trade_date
+          FROM (
+              SELECT DISTINCT DATE(ut2.trade_ts) AS trade_date
+              FROM user_trades ut2
+              WHERE ut2.user_id IN (:guruUserIds)
+                AND ut2.stock_id = :stockId
+              ORDER BY trade_date DESC
+              LIMIT 2
+          ) recent_dates
+      )
+    ORDER BY ut.trade_ts DESC
+    """, nativeQuery = true)
+    List<UserTrades> findLatestTradesByGuruUserIds(@Param("guruUserIds") List<String> guruUserIds, @Param("stockId") String stockId);
+
 
 }

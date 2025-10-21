@@ -50,4 +50,11 @@ public class GuruController {
         UserTrackingResponse userTrackingBatchResponse = guruService.collectBatch(userTrackingRequest.getEvents());
         return new ResponseEntity<>(userTrackingBatchResponse, HttpStatus.CREATED);
     }
+
+    @GetMapping("/stock-main/{symbol}")
+    @AssignCurrentMemberId
+    public ResponseEntity<UserGuruMainResponse> getStockSymbolGuru(@PathVariable("symbol") String symbol, CurrentMemberIdRequest currentMemberIdRequest) {
+        UserGuruMainResponse userGuruMainResponse = guruService.getStockSymbolGuru(symbol, currentMemberIdRequest);
+        return new ResponseEntity<>(userGuruMainResponse, HttpStatus.OK);
+    }
 }

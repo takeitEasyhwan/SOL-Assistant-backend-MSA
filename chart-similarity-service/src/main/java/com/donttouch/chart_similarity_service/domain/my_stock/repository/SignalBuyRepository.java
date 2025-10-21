@@ -14,4 +14,6 @@ public interface SignalBuyRepository extends JpaRepository<SignalBuy, Long> {
     List<SignalBuy> findByStockCodeIn(List<String> stockCodes);
 
     Optional<SignalBuy> findTopByStockCodeOrderByCreatedAtDesc(String stockCode);
+
+    boolean existsByStockCode(String stockCode);
 }

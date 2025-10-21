@@ -9,6 +9,8 @@ import java.util.Optional;
 @Repository
 public interface SignalBuyRepository extends JpaRepository<SignalBuy, Long> {
 
+    Optional<SignalBuy> findByStockCode(String stockCode);
+
     List<SignalBuy> findByStockCodeIn(List<String> stockCodes);
 
     Optional<SignalBuy> findTopByStockCodeOrderByCreatedAtDesc(String stockCode);

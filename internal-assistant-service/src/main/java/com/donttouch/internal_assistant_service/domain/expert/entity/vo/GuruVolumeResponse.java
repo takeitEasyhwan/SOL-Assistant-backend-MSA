@@ -29,5 +29,8 @@ public class GuruVolumeResponse {
         private double yesterdayVolume;
         private double todayVolume;
         private double volumeChangePercent;
+        private double guruBuyVolume;
+        private double guruSellVolume;
+        private double guruVolumePercent;
     }
 }

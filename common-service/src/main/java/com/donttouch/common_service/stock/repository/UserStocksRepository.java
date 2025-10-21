@@ -46,4 +46,5 @@ public interface UserStocksRepository extends JpaRepository<UserStocks, String> 
             @Param("stockId") String stockId
     );
 
+    boolean existsByUserIdAndStock_Symbol(String userId, String stockCode);
 }

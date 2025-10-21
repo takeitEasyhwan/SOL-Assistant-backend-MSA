@@ -4,6 +4,10 @@ import com.donttouch.chart_similarity_service.domain.my_stock.repository.SignalB
 import com.donttouch.chart_similarity_service.domain.my_stock.repository.SignalSellRepository;
 import com.donttouch.chart_similarity_service.domain.stock.dto.StockSignalRes;
 import com.donttouch.chart_similarity_service.domain.stock.repository.SignalExplainRepository;
+import com.donttouch.common_service.stock.entity.Stock;
+import com.donttouch.common_service.stock.entity.UserStocks;
+import com.donttouch.common_service.stock.repository.StockRepository;
+import com.donttouch.common_service.stock.repository.UserStocksRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,67 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Collections;
-
-//@Service
-//@RequiredArgsConstructor
-//@Slf4j
-//public class StockService {
-//
-//    private final SignalBuyRepository signalBuyRepository;
-//    private final SignalSellRepository signalSellRepository;
-//    private final SignalExplainRepository signalExplainRepository;
-//    private final ObjectMapper objectMapper = new ObjectMapper(); // ✅ JSON 파서
-//
-//    public StockSignalRes getSignalInfo(String stockCode, String signalType) {
-//        log.info("📩 종목별 시그널 조회 요청: code={}, type={}", stockCode, signalType);
-//
-//        if (signalType.equalsIgnoreCase("buy")) {
-//            var signal = signalBuyRepository.findTopByStockCodeOrderByCreatedAtDesc(stockCode)
-//                    .orElseThrow(() -> new RuntimeException("매수 시그널 없음"));
-//            var explain = signalExplainRepository.findById(signal.getSignalId())
-//                    .orElseThrow(() -> new RuntimeException("설명 데이터 없음"));
-//
-//            return StockSignalRes.builder()
-//                    .stockName(signal.getStockName())
-//                    .trendPastScaled(parseJson(signal.getTrendPastScaled()))
-//                    .trendToday(parseJson(signal.getTrendToday()))
-//                    .todayDate(signal.getTodayDate().toString())
-//                    .pastDate(signal.getPastDate().toString())
-//                    .description(explain.getDescription())
-//                    .descriptionDetail(explain.getDescriptionDetail())
-//                    .build();
-//
-//        } else if (signalType.equalsIgnoreCase("sell")) {
-//            var signal = signalSellRepository.findTopByStockCodeOrderByCreatedAtDesc(stockCode)
-//                    .orElseThrow(() -> new RuntimeException("매도 시그널 없음"));
-//            var explain = signalExplainRepository.findById(signal.getSignalId())
-//                    .orElseThrow(() -> new RuntimeException("설명 데이터 없음"));
-//
-//            return StockSignalRes.builder()
-//                    .stockName(signal.getStockName())
-//                    .trendPastScaled(parseJson(signal.getTrendPastScaled()))
-//                    .trendToday(parseJson(signal.getTrendToday()))
-//                    .todayDate(signal.getTodayDate().toString())
-//                    .pastDate(signal.getPastDate().toString())
-//                    .description(explain.getDescription())
-//                    .descriptionDetail(explain.getDescriptionDetail())
-//                    .build();
-//
-//        } else {
-//            throw new IllegalArgumentException("signal-type은 buy 또는 sell만 허용됩니다.");
-//        }
-//    }
-//
-//    /** ✅ JSON 문자열을 List<Map>으로 변환 */
-//    private List<Map<String, Object>> parseJson(String json) {
-//        try {
-//            return objectMapper.readValue(json, new TypeReference<>() {});
-//        } catch (Exception e) {
-//            log.error("❌ JSON 파싱 실패: {}", e.getMessage());
-//            return List.of();
-//        }
-//    }
-//}
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -87,12 +30,22 @@ public class StockService {
     private final SignalBuyRepository signalBuyRepository;
     private final SignalSellRepository signalSellRepository;
     private final SignalExplainRepository signalExplainRepository;
+    private final StockRepository stockRepository;
+    private final UserStocksRepository userStocksRepository;
     private final ObjectMapper objectMapper = new ObjectMapper(); // ✅ JSON 파서
 
-    public StockSignalRes getSignalInfo(String stockCode, String signalType) {
+    public StockSignalRes getSignalInfo(String stockCode, String signalType, String userId) {
         log.info("📩 종목별 시그널 조회 요청: code={}, type={}", stockCode, signalType);
 
         if (signalType.equalsIgnoreCase("buy")) {
+
+            if (signalBuyRepository.findByStockCode(stockCode).isEmpty()) {
+                return StockSignalRes.builder().build();
+            }
+            boolean isStock = stockRepository.findBySymbol(stockCode).isPresent();
+            boolean isHave = userStocksRepository.existsByUserIdAndStock_Symbol(userId, stockCode);
+
+
             var signal = signalBuyRepository.findTopByStockCodeOrderByCreatedAtDesc(stockCode)
                     .orElseThrow(() -> new RuntimeException("매수 시그널 없음"));
 
@@ -105,11 +58,22 @@ public class StockService {
                     .trendToday(parseJsonArray(signal.getTrendToday()))
                     .todayDate(signal.getTodayDate().toString())
                     .pastDate(signal.getPastDate().toString())
+                    .signalType(explain.getSignalType())
                     .description(explain.getDescription())
                     .descriptionDetail(explain.getDescriptionDetail())
+                    .isStockHave(isStock || isHave)
                     .build();
 
-        } else if (signalType.equalsIgnoreCase("sell")) {
+            }
+        else if (signalType.equalsIgnoreCase("sell")) {
+
+            if (signalSellRepository.findByStockCode(stockCode).isEmpty()) {
+                return StockSignalRes.builder().build();
+            }
+            boolean isStock = stockRepository.findBySymbol(stockCode).isPresent();
+            boolean isHave = userStocksRepository.existsByUserIdAndStock_Symbol(userId, stockCode);
+
+
             var signal = signalSellRepository.findTopByStockCodeOrderByCreatedAtDesc(stockCode)
                     .orElseThrow(() -> new RuntimeException("매도 시그널 없음"));
 
@@ -122,8 +86,10 @@ public class StockService {
                     .trendToday(parseJsonArray(signal.getTrendToday()))
                     .todayDate(signal.getTodayDate().toString())
                     .pastDate(signal.getPastDate().toString())
+                    .signalType(explain.getSignalType())
                     .description(explain.getDescription())
                     .descriptionDetail(explain.getDescriptionDetail())
+                    .isStockHave(isStock || isHave)
                     .build();
 
         } else {

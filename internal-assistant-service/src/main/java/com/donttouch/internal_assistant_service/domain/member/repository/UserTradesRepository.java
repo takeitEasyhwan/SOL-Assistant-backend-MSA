@@ -74,4 +74,18 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
 """)
     List<UserTrades> findByUserIds(@Param("userIds") List<String> userIds);
 
+    @Query(value = """
+    SELECT ut.* 
+    FROM user_trades ut
+    JOIN (
+        SELECT DISTINCT DATE(trade_ts) AS trade_date
+        FROM user_trades
+        ORDER BY trade_date DESC
+        LIMIT 2
+    ) recent_days ON DATE(ut.trade_ts) = recent_days.trade_date
+    WHERE ut.stock_id IN :stockIds
+      AND ut.user_id IN :guruUserIds
+    """, nativeQuery = true)
+    List<UserTrades> findLatestTwoDaysByStockIds(@Param("stockIds") List<String> stockIds,@Param("guruUserIds") List<String> guruUserIds);
+
 }

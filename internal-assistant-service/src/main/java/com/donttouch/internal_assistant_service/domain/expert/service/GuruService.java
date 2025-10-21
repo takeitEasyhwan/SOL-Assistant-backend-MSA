@@ -14,6 +14,7 @@ import com.donttouch.internal_assistant_service.domain.expert.repository.*;
 import com.donttouch.internal_assistant_service.domain.exception.ErrorMessage;
 import com.donttouch.internal_assistant_service.domain.exception.StockNotFoundException;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
+import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
 import com.donttouch.internal_assistant_service.domain.member.repository.DailyStockChartsRepository;
 import com.donttouch.internal_assistant_service.domain.member.repository.UserTradesRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+
 import com.donttouch.common_service.auth.entity.User;
 import com.donttouch.common_service.auth.entity.vo.MyInfoResponse;
 import com.donttouch.common_service.auth.repository.UserRepository;
@@ -32,7 +33,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -89,17 +89,76 @@ public class GuruService {
     @Transactional(readOnly = true)
     public GuruVolumeResponse getGuruVolumeRank(Side side, InvestmentType investmentType) {
         List<StockVolumeBatch> stockVolumes = stockVolumeBatchRepository.findBySideAndInvest(side, investmentType);
-        System.out.println(stockVolumes.size());
+
         List<String> stockIds = stockVolumes.stream()
                 .map(StockVolumeBatch::getStockId)
                 .toList();
-        System.out.println(stockIds.size());
+
         List<Stock> stocks = stockRepository.findAllById(stockIds);
-        for (Stock stock : stocks) {
-            System.out.println(stock.toString());
+
+
+        List<String> guruUserIds = switch (investmentType) {
+            case DAY -> guruDayRepository.findAllUserIds();
+            case SWING -> guruSwingRepository.findAllUserIds();
+            case HOLD -> guruHoldRepository.findAllUserIds();
+        };
+        long start = System.currentTimeMillis();
+
+        List<UserTrades> userTrades = userTradesRepository.findLatestTwoDaysByStockIds(stockIds, guruUserIds);
+
+        long end = System.currentTimeMillis();
+
+        System.out.println("쿼리 실행 시간: " + (end - start) + "ms");
+        GuruVolumeResponse guruVolumeResponseCurrent = buildGuruVolumeResponse(stocks);
+
+        Map<String, Map<String, Double>> guruVolumeMap = new HashMap<>();
+        for (UserTrades trade : userTrades) {
+            String symbol = trade.getStock().getSymbol();
+            guruVolumeMap.putIfAbsent(symbol, new HashMap<>());
+            Map<String, Double> volume = guruVolumeMap.get(symbol);
+
+            double prevBuy = volume.getOrDefault("BUY", 0.0);
+            double prevSell = volume.getOrDefault("SELL", 0.0);
+
+            if (trade.getSide() == Side.BUY) {
+                volume.put("BUY", prevBuy + trade.getQuantity());
+            } else {
+                volume.put("SELL", prevSell + trade.getQuantity());
+            }
         }
 
-        return buildGuruVolumeResponse(stocks);
+        List<GuruVolumeResponse.GuruStockVolumeDto> updatedList = guruVolumeResponseCurrent.getStockVolumeList().stream()
+                .map(dto -> {
+                    Map<String, Double> volume = guruVolumeMap.getOrDefault(dto.getStockSymbol(), Map.of("BUY",0.0,"SELL",0.0));
+                    double buy = volume.get("BUY");
+                    double sell = volume.get("SELL");
+                    double total = buy + sell;
+                    double percent = total > 0 ? (buy - sell) / total : 0.0;
+
+                    // 기존 dto 값은 그대로, guruVolume 값만 새로 추가
+                    return GuruVolumeResponse.GuruStockVolumeDto.builder()
+                            .stockSymbol(dto.getStockSymbol())
+                            .stockName(dto.getStockName())
+                            .yesterdayClosePrice(dto.getYesterdayClosePrice())
+                            .todayClosePrice(dto.getTodayClosePrice())
+                            .priceChangePercent(dto.getPriceChangePercent())
+                            .yesterdayVolume(dto.getYesterdayVolume())
+                            .todayVolume(dto.getTodayVolume())
+                            .volumeChangePercent(dto.getVolumeChangePercent())
+                            .guruBuyVolume(buy)
+                            .guruSellVolume(sell)
+                            .guruVolumePercent(percent)
+                            .build();
+                })
+                .toList();
+
+// GuruVolumeResponse 새로 생성
+        guruVolumeResponseCurrent = GuruVolumeResponse.builder()
+                .date(guruVolumeResponseCurrent.getDate())
+                .stockVolumeList(updatedList)
+                .build();
+
+        return guruVolumeResponseCurrent;
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +168,8 @@ public class GuruService {
                 .map(StockViewBatch::getStockId)
                 .toList();
         List<Stock> stocks = stockRepository.findAllById(stockIds);
+
+
         return buildGuruVolumeResponse(stocks);
     }
 

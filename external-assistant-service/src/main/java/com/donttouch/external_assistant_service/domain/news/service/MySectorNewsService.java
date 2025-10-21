@@ -1,10 +1,15 @@
 package com.donttouch.external_assistant_service.domain.news.service;
 
 import com.donttouch.common_service.sector.entity.Sector;
+import com.donttouch.common_service.stock.entity.Stock;
+import com.donttouch.common_service.stock.repository.StockRepository;
 import com.donttouch.common_service.stock.repository.UserStocksRepository;
+import com.donttouch.external_assistant_service.domain.exception.ErrorMessage;
+import com.donttouch.external_assistant_service.domain.exception.StockNotFoundException;
 import com.donttouch.external_assistant_service.domain.news.entity.SectorNews;
 import com.donttouch.external_assistant_service.domain.news.entity.SectorNewsSummary;
 import com.donttouch.external_assistant_service.domain.news.entity.vo.SectorNewsInfoResponse;
+import com.donttouch.external_assistant_service.domain.news.entity.vo.StockMainNewsResponse;
 import com.donttouch.external_assistant_service.domain.news.repository.SectorNewsRepository;
 import com.donttouch.external_assistant_service.domain.news.repository.SectorNewsSummaryRepository;
 import jakarta.transaction.Transactional;
@@ -24,6 +29,7 @@ public class MySectorNewsService {
     private final UserStocksRepository userStocksRepository;
     private final SectorNewsRepository sectorNewsRepository;
     private final SectorNewsSummaryRepository sectorNewsSummaryRepository;
+    private final StockRepository stockRepository;
 
     @Transactional
     public List<SectorNewsInfoResponse> getMySectorNewsInfo(String userId) {
@@ -56,5 +62,15 @@ public class MySectorNewsService {
         }
 
         return result;
+    }
+    public StockMainNewsResponse getStockMainNews(String symbol) {
+        Stock stock = stockRepository.findBySymbol(symbol)
+                .orElseThrow(() -> new StockNotFoundException(ErrorMessage.STOCK_NOT_FOUND));
+        SectorNewsSummary sectorNewsSummary = sectorNewsSummaryRepository.findBySector(stock.getSector());
+        return StockMainNewsResponse.builder()
+                .stockId(stock.getId())
+                .sectorId(stock.getSector().getId())
+                .emotion(sectorNewsSummary.getEmotion())
+                .build();
     }
 }

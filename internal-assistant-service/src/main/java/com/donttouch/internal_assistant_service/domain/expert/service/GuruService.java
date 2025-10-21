@@ -61,18 +61,42 @@ public class GuruService {
     public GuruTradeResponse getGuruTrade(String symbol, InvestmentType type) {
         Stock stock = stockRepository.findBySymbol(symbol)
                 .orElseThrow(() -> new StockNotFoundException(ErrorMessage.STOCK_NOT_FOUND));
-
         List<String> guruUserIds = switch (type) {
             case DAY -> guruDayRepository.findAllUserIds();
             case SWING -> guruSwingRepository.findAllUserIds();
             case HOLD -> guruHoldRepository.findAllUserIds();
         };
 
-        List<GuruTradeData> tradeStats = userTradesRepository.aggregateDailyTradeStats(guruUserIds, stock.getId());
+        List<Map<String, Object>> rows = userTradesRepository.aggregateGuruTradeDataByDate(guruUserIds, stock.getId());
 
-        Double totalHolding = userStocksRepository.sumTotalHoldings(guruUserIds, stock.getId());
+        List<GuruTradeData> tradeStats = rows.stream()
+                .map(row -> new GuruTradeData(
+                        ((java.sql.Date) row.get("tradeDate")).toLocalDate(),
+                        ((Number) row.get("buyVolume")).doubleValue(),
+                        ((Number) row.get("sellVolume")).doubleValue(),
+                        0.0
+                ))
+                .collect(Collectors.toList());
 
-        return GuruTradeResponse.of(stock, type, tradeStats, totalHolding);
+        double cumulative = 0.0;
+        List<GuruTradeData> cumulativeStats = new ArrayList<>();
+
+        for (GuruTradeData data : tradeStats) {
+            cumulative += (data.getBuyVolume() - data.getSellVolume());
+            cumulativeStats.add(new GuruTradeData(
+                    data.getDate(),
+                    data.getBuyVolume(),
+                    data.getSellVolume(),
+                    cumulative
+            ));
+        }
+
+        return GuruTradeResponse.builder()
+                        .stockName(stock.getStockName())
+                        .symbol(stock.getSymbol())
+                        .period(type)
+                        .data(cumulativeStats)
+                        .build();
     }
 
 

@@ -1,8 +1,12 @@
 package com.donttouch.common_service.global.aop;
 
 import com.donttouch.common_service.global.aop.dto.CurrentMemberIdRequest;
+import com.donttouch.common_service.global.exception.AccessTokenExpiredException;
 import com.donttouch.common_service.global.exception.AuthenticationEntryPointException;
+import com.donttouch.common_service.global.exception.InvalidAuthCodeException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.JoinPoint;
@@ -50,11 +54,15 @@ public class AssignCurrentMemberIdAspect {
                     .setSigningKey(jwtSecret)
                     .parseClaimsJws(token)
                     .getBody();
-
-            return claims.get("USER_ID", String.class); // JWT에 실제 있는 값으로 바꿈
-        } catch (Exception e) {
+            return claims.get("USER_ID", String.class);
+        } catch (ExpiredJwtException e) {
+            throw new AccessTokenExpiredException();
+        } catch (JwtException e) {
+            throw new InvalidAuthCodeException();
+        }catch (Exception e) {
             throw new AuthenticationEntryPointException();
         }
+
     }
 
 }

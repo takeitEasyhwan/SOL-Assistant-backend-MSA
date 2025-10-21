@@ -130,6 +130,7 @@ public class UserService {
     public TradeProfitResponse getTradeSimpleProfit(String userId, LocalDate startDate) {
         List<UserTrades> trades = getMonthlyTrades(userId, startDate);
 
+
         TradeSummary summary = calculateTradeSummary(trades);
         List<TradeProfitResponse.TradeDetail> allTrades = toTradeDetailList(trades);
 

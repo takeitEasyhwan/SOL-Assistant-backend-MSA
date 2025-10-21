@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import com.donttouch.common_service.auth.entity.User;
@@ -43,7 +42,6 @@ public class GuruService {
     private final GuruDayRepository guruDayRepository;
     private final StockRepository stockRepository;
     private final UserTradesRepository userTradesRepository;
-    private final UserStocksRepository userStocksRepository;
     private final GuruSwingRepository guruSwingRepository;
     private final GuruHoldRepository guruHoldRepository;
     private final DailyStockChartsRepository dailyStockChartsRepository;
@@ -102,13 +100,10 @@ public class GuruService {
             case SWING -> guruSwingRepository.findAllUserIds();
             case HOLD -> guruHoldRepository.findAllUserIds();
         };
-        long start = System.currentTimeMillis();
 
         List<UserTrades> userTrades = userTradesRepository.findLatestTwoDaysByStockIds(stockIds, guruUserIds);
 
-        long end = System.currentTimeMillis();
 
-        System.out.println("쿼리 실행 시간: " + (end - start) + "ms");
         GuruVolumeResponse guruVolumeResponseCurrent = buildGuruVolumeResponse(stocks);
 
         Map<String, Map<String, Double>> guruVolumeMap = new HashMap<>();
@@ -135,7 +130,6 @@ public class GuruService {
                     double total = buy + sell;
                     double percent = total > 0 ? (buy - sell) / total : 0.0;
 
-                    // 기존 dto 값은 그대로, guruVolume 값만 새로 추가
                     return GuruVolumeResponse.GuruStockVolumeDto.builder()
                             .stockSymbol(dto.getStockSymbol())
                             .stockName(dto.getStockName())
@@ -152,7 +146,6 @@ public class GuruService {
                 })
                 .toList();
 
-// GuruVolumeResponse 새로 생성
         guruVolumeResponseCurrent = GuruVolumeResponse.builder()
                 .date(guruVolumeResponseCurrent.getDate())
                 .stockVolumeList(updatedList)
@@ -321,8 +314,12 @@ public class GuruService {
     public UserGuruMainResponse getStockSymbolGuru(String symbol, CurrentMemberIdRequest currentMemberIdRequest) {
         String userId = currentMemberIdRequest.getUserUuid();
 
-        User user = userRepository.findById(userId).orElse(null);
-        Stock userStock = stockRepository.findBySymbol(symbol).orElse(null);
+        User user = userRepository.findById(userId).
+                orElseThrow(()-> new UserNotFoundException(ErrorMessage.USER_NOT_FOUND));
+
+
+        Stock userStock = stockRepository.findBySymbol(symbol)
+                .orElseThrow(() -> new StockNotFoundException(ErrorMessage.STOCK_NOT_FOUND));
 
         InvestmentType userType = user.getInvestmentType();
 

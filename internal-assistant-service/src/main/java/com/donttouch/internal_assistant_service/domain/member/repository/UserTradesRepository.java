@@ -4,9 +4,6 @@ import com.donttouch.common_service.stock.entity.Stock;
 import com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData;
 import com.donttouch.internal_assistant_service.domain.member.entity.Side;
 import com.donttouch.internal_assistant_service.domain.member.entity.UserTrades;
-import com.donttouch.internal_assistant_service.domain.member.entity.vo.TradeHasMonthResponse;
-import jakarta.validation.constraints.Null;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,23 +11,26 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface UserTradesRepository extends JpaRepository<UserTrades, String> {
 
-    @Query("""
-        SELECT new com.donttouch.internal_assistant_service.domain.expert.entity.GuruTradeData(
-            t.tradeTs,
-            SUM(CASE WHEN t.side = 'BUY' THEN t.quantity ELSE 0 END),
-            SUM(CASE WHEN t.side = 'SELL' THEN t.quantity ELSE 0 END)
-        )
-        FROM UserTrades t
-        WHERE t.user.id IN :guruUserIds AND t.stock.id = :stockId
-        GROUP BY t.tradeTs
-        ORDER BY t.tradeTs
-    """)
-    List<GuruTradeData> aggregateDailyTradeStats(@Param("guruUserIds") List<String> guruUserIds,
-                                                 @Param("stockId") String stockId);
+    @Query(value = """
+        SELECT 
+            DATE(t.trade_ts) AS tradeDate,
+            SUM(CASE WHEN t.side = 'BUY' THEN t.quantity ELSE 0 END) AS buyVolume,
+            SUM(CASE WHEN t.side = 'SELL' THEN t.quantity ELSE 0 END) AS sellVolume
+        FROM user_trades t
+        WHERE t.user_id IN :userIds
+          AND t.stock_id = :stockId
+        GROUP BY DATE(t.trade_ts)
+        ORDER BY tradeDate ASC
+    """, nativeQuery = true)
+    List<Map<String, Object>> aggregateGuruTradeDataByDate(
+            @Param("userIds") List<String> userIds,
+            @Param("stockId") String stockId
+    );
 
     @Query("""
         SELECT t

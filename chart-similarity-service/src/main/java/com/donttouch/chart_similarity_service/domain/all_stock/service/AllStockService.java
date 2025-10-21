@@ -57,13 +57,12 @@ public class AllStockService {
                 map.put("stock_code", sb.getStockCode());
                 map.put("currentPrice", sb.getTodayClose());
                 map.put("change_rate", sb.getChangeRate());
-
+                map.put("today_volume", sb.getTodayVolume());
 
 //                map.put("buy_id", sb.getBuyId());
 //                map.put("signal_id", sb.getSignalId());
 //                map.put("today_date", sb.getTodayDate());
 //                map.put("past_date", sb.getPastDate());
-//                map.put("today_volume", sb.getTodayVolume());
 //                map.put("trend_today", sb.getTrendToday());
 //                map.put("trend_past_scaled", sb.getTrendPastScaled());
 //                map.put("created_at", sb.getCreatedAt());
@@ -76,6 +75,7 @@ public class AllStockService {
                 map.put("stock_code", ss.getStockCode());
                 map.put("currentPrice", ss.getTodayClose());
                 map.put("change_rate", ss.getChangeRate());
+                map.put("today_volume", ss.getTodayVolume());
 
 //                map.put("sell_id", ss.getSellId());
 //                map.put("signal_id", ss.getSignalId());
@@ -85,7 +85,6 @@ public class AllStockService {
 //                map.put("past_date", ss.getPastDate());
 //                map.put("today_close", ss.getTodayClose());
 //                map.put("change_rate", ss.getChangeRate());
-//                map.put("today_volume", ss.getTodayVolume());
 //                map.put("trend_today", ss.getTrendToday());
 //                map.put("trend_past_scaled", ss.getTrendPastScaled());
 //                map.put("created_at", ss.getCreatedAt());

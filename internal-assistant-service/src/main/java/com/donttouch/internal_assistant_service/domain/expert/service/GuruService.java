@@ -73,29 +73,15 @@ public class GuruService {
                 .map(row -> new GuruTradeData(
                         ((java.sql.Date) row.get("tradeDate")).toLocalDate(),
                         ((Number) row.get("buyVolume")).doubleValue(),
-                        ((Number) row.get("sellVolume")).doubleValue(),
-                        0.0
+                        ((Number) row.get("sellVolume")).doubleValue()
                 ))
                 .collect(Collectors.toList());
-
-        double cumulative = 0.0;
-        List<GuruTradeData> cumulativeStats = new ArrayList<>();
-
-        for (GuruTradeData data : tradeStats) {
-            cumulative += (data.getBuyVolume() - data.getSellVolume());
-            cumulativeStats.add(new GuruTradeData(
-                    data.getDate(),
-                    data.getBuyVolume(),
-                    data.getSellVolume(),
-                    cumulative
-            ));
-        }
 
         return GuruTradeResponse.builder()
                         .stockName(stock.getStockName())
                         .symbol(stock.getSymbol())
                         .period(type)
-                        .data(cumulativeStats)
+                        .data(tradeStats)
                         .build();
     }
 

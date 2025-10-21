@@ -7,17 +7,14 @@ public class GuruTradeData {
     private LocalDate date;
     private Double buyVolume;
     private Double sellVolume;
-    private Double holdingVolume;
 
-    public GuruTradeData(LocalDate date, Double buyVolume, Double sellVolume, Double holdingVolume) {
+    public GuruTradeData(LocalDate date, Double buyVolume, Double sellVolume) {
         this.date = date;
         this.buyVolume = buyVolume;
         this.sellVolume = sellVolume;
-        this.holdingVolume = holdingVolume;
     }
 
     public LocalDate getDate() { return date; }
     public Double getBuyVolume() { return buyVolume; }
     public Double getSellVolume() { return sellVolume; }
-    public Double getHoldingVolume() { return holdingVolume; }
 }

@@ -133,7 +133,7 @@ public class GuruBatchService {
 
             List<String> topStockIds = stockScores.entrySet().stream()
                     .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed())
-                    .limit(10)
+                    .limit(15)
                     .map(Map.Entry::getKey)
                     .toList();
 

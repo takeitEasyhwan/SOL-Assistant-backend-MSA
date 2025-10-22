@@ -10,4 +10,6 @@ import lombok.*;
 public class TradeMoneyResponse {
     private Double totalBalance;
     private Double principal;
+    private Double difference;
+    private Double differenceRate;
 }

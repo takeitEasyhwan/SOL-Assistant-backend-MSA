@@ -12,4 +12,6 @@ public interface HoldingPeriodDistributionRepository extends JpaRepository<Holdi
 
     Optional<HoldingPeriodDistribution> findByQuantile(Double quantile);
     List<HoldingPeriodDistribution> findAllByOrderByQuantileAsc();
+
+    List<HoldingPeriodDistribution> findAllByOrderByHoldingDaysAsc();
 }

@@ -84,6 +84,7 @@ public class GuruService {
     }
 
 
+    /** Volume **/
     @Transactional(readOnly = true)
     public GuruVolumeResponse getGuruVolumeRank(Side side, InvestmentType investmentType) {
         List<StockVolumeBatch> stockVolumes = stockVolumeBatchRepository.findBySideAndInvest(side, investmentType);
@@ -103,32 +104,46 @@ public class GuruService {
 
         List<UserTrades> userTrades = userTradesRepository.findLatestTwoDaysByStockIds(stockIds, guruUserIds);
 
-
         GuruVolumeResponse guruVolumeResponseCurrent = buildGuruVolumeResponse(stocks);
 
-        Map<String, Map<String, Double>> guruVolumeMap = new HashMap<>();
+
+        Map<LocalDate, Map<String, Map<String, Double>>> guruVolumeMap = new HashMap<>();
+
         for (UserTrades trade : userTrades) {
+            LocalDate tradeDate = trade.getTradeTs().toLocalDate();
             String symbol = trade.getStock().getSymbol();
-            guruVolumeMap.putIfAbsent(symbol, new HashMap<>());
-            Map<String, Double> volume = guruVolumeMap.get(symbol);
 
-            double prevBuy = volume.getOrDefault("BUY", 0.0);
-            double prevSell = volume.getOrDefault("SELL", 0.0);
+            guruVolumeMap.putIfAbsent(tradeDate, new HashMap<>());
+            Map<String, Map<String, Double>> symbolMap = guruVolumeMap.get(tradeDate);
 
-            if (trade.getSide() == Side.BUY) {
-                volume.put("BUY", prevBuy + trade.getQuantity());
-            } else {
-                volume.put("SELL", prevSell + trade.getQuantity());
-            }
+            symbolMap.putIfAbsent(symbol, new HashMap<>());
+            Map<String, Double> volume = symbolMap.get(symbol);
+
+            double prev = volume.getOrDefault(trade.getSide().name(), 0.0);
+            volume.put(trade.getSide().name(), prev + trade.getQuantity());
         }
+
+        List<LocalDate> dates = new ArrayList<>(guruVolumeMap.keySet());
+        dates.sort(Comparator.naturalOrder());
+        LocalDate yesterday = dates.get(0);
+        LocalDate today = dates.get(1);
 
         List<GuruVolumeResponse.GuruStockVolumeDto> updatedList = guruVolumeResponseCurrent.getStockVolumeList().stream()
                 .map(dto -> {
-                    Map<String, Double> volume = guruVolumeMap.getOrDefault(dto.getStockSymbol(), Map.of("BUY",0.0,"SELL",0.0));
-                    double buy = volume.get("BUY");
-                    double sell = volume.get("SELL");
-                    double total = buy + sell;
-                    double percent = total > 0 ? (buy - sell) / total : 0.0;
+                    Map<String, Double> yesterdayVolume = guruVolumeMap.getOrDefault(yesterday, Map.of()).getOrDefault(dto.getStockSymbol(), Map.of());
+                    Map<String, Double> todayVolume = guruVolumeMap.getOrDefault(today, Map.of()).getOrDefault(dto.getStockSymbol(), Map.of());
+
+                    double yesterdayBuy = yesterdayVolume.getOrDefault("BUY", 0.0);
+                    double todayBuy = todayVolume.getOrDefault("BUY", 0.0);
+                    double yesterdaySell = yesterdayVolume.getOrDefault("SELL", 0.0);
+                    double todaySell = todayVolume.getOrDefault("SELL", 0.0);
+
+                    double guruVolumePercent;
+                    if (side == Side.BUY) {
+                        guruVolumePercent = yesterdayBuy > 0 ? ((todayBuy - yesterdayBuy) / yesterdayBuy) * 100 : 0.0;
+                    } else {
+                        guruVolumePercent = yesterdaySell > 0 ? ((todaySell - yesterdaySell) / yesterdaySell) * 100 : 0.0;
+                    }
 
                     return GuruVolumeResponse.GuruStockVolumeDto.builder()
                             .stockSymbol(dto.getStockSymbol())
@@ -139,12 +154,13 @@ public class GuruService {
                             .yesterdayVolume(dto.getYesterdayVolume())
                             .todayVolume(dto.getTodayVolume())
                             .volumeChangePercent(dto.getVolumeChangePercent())
-                            .guruBuyVolume(buy)
-                            .guruSellVolume(sell)
-                            .guruVolumePercent(percent)
+                            .guruBuyVolume(todayBuy)
+                            .guruSellVolume(todaySell)
+                            .guruVolumePercent(guruVolumePercent)
                             .build();
                 })
                 .toList();
+
 
         guruVolumeResponseCurrent = GuruVolumeResponse.builder()
                 .date(guruVolumeResponseCurrent.getDate())
@@ -310,6 +326,7 @@ public class GuruService {
         });
     }
 
+    /** guru **/
     @Transactional(readOnly = true)
     public UserGuruMainResponse getStockSymbolGuru(String symbol, CurrentMemberIdRequest currentMemberIdRequest) {
         String userId = currentMemberIdRequest.getUserUuid();

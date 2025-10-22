@@ -37,6 +37,10 @@ public class MySectorNewsController {
         return ResponseEntity.ok(data);
     }
 
-
+    @GetMapping("/{sector}")
+    public ResponseEntity<List<SectorNewsInfoResponse>> getSectorNewsInfoBySector(@PathVariable("sector") String sectorId) {
+        List<SectorNewsInfoResponse> data = mySectorNewsService.getSectorNewsInfoBySector(sectorId);
+        return ResponseEntity.ok(data);
+    }
 
 }

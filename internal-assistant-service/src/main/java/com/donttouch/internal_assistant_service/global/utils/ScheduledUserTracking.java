@@ -28,9 +28,7 @@ public class ScheduledUserTracking {
     @Async
     @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 0)
     public void guruTrackingViewBatch() {
-        System.out.println("시작전");
         guruBatchService.guruTrackingViewBatch();
-        System.out.println("시작후");
     }
 
 //    @Async

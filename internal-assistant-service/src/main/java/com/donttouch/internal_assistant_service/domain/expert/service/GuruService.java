@@ -376,15 +376,22 @@ public class GuruService {
 
         // 2. 차이 계산
         double sellDiff = latestSell - prevSell;
-        double buyDiff = prevSell - prevBuy;
+        double buyDiff  = latestBuy  - prevBuy;
 
-        // 3. 퍼센트 계산
-        double totalLatest = latestBuy + latestSell;
-        double totalPrev = prevBuy + prevSell;
+// 안전한 퍼센트 계산: prev가 0일 때 특별 처리
+        double guruSellPercent;
+        if (prevSell > 0) {
+            guruSellPercent = (sellDiff / prevSell) * 100.0;
+        } else {
+            guruSellPercent = (latestSell > 0) ? 100.0 : 0.0;
+        }
 
-        double guruSellPercent = totalLatest != 0 ? (sellDiff / totalLatest) * 100 : 0;
-        double guruBuyPercent = totalPrev != 0 ? (buyDiff / totalPrev) * 100 : 0;
-
+        double guruBuyPercent;
+        if (prevBuy > 0) {
+            guruBuyPercent = (buyDiff / prevBuy) * 100.0;
+        } else {
+            guruBuyPercent = (latestBuy > 0) ? 100.0 : 0.0;
+        }
         // 4. Response 객체 생성
         return UserGuruMainResponse.builder()
                 .latestSellQuantity(latestSell)

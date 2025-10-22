@@ -119,11 +119,33 @@ public class UserService {
                     .build();
             userAssetsRepository.save(userAssets);
         }
+        double currentValue = calculateCurrentTotalValue(userId);
+        double currentMoney = currentValue + userAssets.getTotalBalance();
+
+        double diff = currentMoney - userAssets.getPrincipal();
+        double diffRate = diff / userAssets.getPrincipal() * 100.0;
 
         return TradeMoneyResponse.builder()
                 .principal(userAssets.getPrincipal())
-                .totalBalance(userAssets.getTotalBalance())
+                .totalBalance(currentMoney)
+                .difference(diff)
+                .differenceRate(diffRate)
                 .build();
+    }
+
+    private double calculateCurrentTotalValue(String userId) {
+        List<UserStocks> userStocks = userStocksRepository.findByUserId(userId);
+        double totalValue = 0.0;
+
+        for (UserStocks userStock : userStocks) {
+            String stockId = userStock.getStock().getId();
+            DailyStockCharts latest = dailyStockChartsRepository
+                    .findTopByStockIdOrderByCurrentDayDesc(stockId)
+                    .orElseThrow(() -> new ChartDataNotFoundException(ErrorMessage.CHART_DATA_NOT_FOUND));
+            totalValue += userStock.getQuantity() * latest.getClosePrice();
+        }
+
+        return totalValue;
     }
 
     @Transactional(readOnly = true)

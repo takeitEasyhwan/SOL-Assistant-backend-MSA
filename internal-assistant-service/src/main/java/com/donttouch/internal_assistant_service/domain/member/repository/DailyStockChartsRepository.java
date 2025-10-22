@@ -20,4 +20,5 @@ public interface DailyStockChartsRepository extends JpaRepository<DailyStockChar
     @Query("SELECT d FROM DailyStockCharts d WHERE d.stock.id IN :stockIds ORDER BY d.stock.id, d.currentDay DESC")
     List<DailyStockCharts> findByStockIds(@Param("stockIds") List<String> stockIds);
 
+    Optional<DailyStockCharts> findTopByStockIdOrderByCurrentDayDesc(String stockId);
 }

@@ -109,4 +109,13 @@ public interface UserTradesRepository extends JpaRepository<UserTrades, String> 
     List<UserTrades> findLatestTradesByGuruUserIds(@Param("guruUserIds") List<String> guruUserIds, @Param("stockId") String stockId);
 
 
+    @Query("""
+        SELECT SUM(t.price * t.quantity) / SUM(t.quantity)
+        FROM UserTrades t
+        WHERE t.user.id = :userId
+          AND t.stock.id = :stockId
+          AND t.side = 'BUY'
+    """)
+    Double findAverageBuyPriceByUserAndStock(@Param("userId") String userId,
+                                             @Param("stockId") String stockId);
 }

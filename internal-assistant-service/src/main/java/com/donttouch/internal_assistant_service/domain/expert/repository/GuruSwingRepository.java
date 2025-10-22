@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface GuruSwingRepository extends JpaRepository<GuruSwing, Long> {
-    @Query("SELECT g.guruUserId FROM GuruHold g")
+    @Query("SELECT g.guruUserId FROM GuruSwing g")
     List<String> findAllUserIds();
 }

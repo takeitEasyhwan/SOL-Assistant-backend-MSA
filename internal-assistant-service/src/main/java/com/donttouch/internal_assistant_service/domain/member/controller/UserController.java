@@ -62,7 +62,7 @@ public class UserController {
 
     @GetMapping("/trade-profit/thisMonth")
     @AssignCurrentMemberId
-    public ResponseEntity<TradeProfitResponse> getTradeProfit(CurrentMemberIdRequest currentUser) {
+    public ResponseEntity<TradeProfitResponse> getTradeSimpleProfit(CurrentMemberIdRequest currentUser) {
         LocalDate start = LocalDate.now().withDayOfMonth(1);
         return ResponseEntity.ok(userService.getTradeSimpleProfit(currentUser.getUserUuid(), start));
     }
@@ -71,7 +71,7 @@ public class UserController {
     @AssignCurrentMemberId
     public ResponseEntity<TradeProfitResponse> getTradeProfit(@PathVariable String month, CurrentMemberIdRequest currentUser) {
         LocalDate start = LocalDate.parse(month+"-01");
-        return ResponseEntity.ok(userService.getTradeSimpleProfit(currentUser.getUserUuid(), start));
+        return ResponseEntity.ok(userService.getTradeProfit(currentUser.getUserUuid(), start));
     }
 
     @GetMapping("/trade-profit/sep/{month}")

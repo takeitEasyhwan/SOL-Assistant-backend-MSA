@@ -143,51 +143,29 @@ public class UserService {
     public TradeProfitResponse getTradeProfit(String userId, LocalDate startDate) {
         List<UserTrades> trades = getMonthlyTrades(userId, startDate);
 
-        // 거래일 순 정렬
-        trades.sort(Comparator.comparing(UserTrades::getTradeTs));
-
-        double realizedProfit = 0.0;
-        int realizedCount = 0;
-
-        // BUY 큐를 FIFO로 사용
-        Deque<UserTrades> buyQueue = new ArrayDeque<>();
-
-        for (UserTrades trade : trades) {
-            if (trade.getSide() == Side.BUY) {
-                buyQueue.addLast(trade);
-            } else if (trade.getSide() == Side.SELL) {
-                double remaining = trade.getQuantity();
-
-                while (remaining > 0 && !buyQueue.isEmpty()) {
-                    UserTrades buy = buyQueue.peekFirst();
-
-                    double matchedQty = Math.min(remaining, buy.getQuantity());
-                    double profitPerUnit = trade.getPrice() - buy.getPrice();
-                    realizedProfit += profitPerUnit * matchedQty;
-
-                    remaining -= matchedQty;
-                    buy.setQuantity(buy.getQuantity() - matchedQty);
-                    realizedCount++;
-
-                    if (buy.getQuantity() == 0) {
-                        buyQueue.removeFirst();
-                    }
-                }
-            }
+        if (trades.isEmpty()) {
+            return TradeProfitResponse.builder()
+                    .realizedProfit(0)
+                    .realizedPercent(0)
+                    .sellCount(0)
+                    .sellAmount(0)
+                    .buyCount(0)
+                    .buyAmount(0)
+                    .tradeList(List.of())
+                    .build();
         }
-
-        // 실현수익률 계산
-        double totalInvested = trades.stream()
-                .filter(t -> t.getSide() == Side.SELL)
-                .mapToDouble(t -> t.getPrice() * t.getQuantity())
-                .sum();
-
-        double realizedPercent = totalInvested == 0 ? 0 : (realizedProfit / totalInvested) * 100.0;
+        trades.sort(Comparator.comparing(UserTrades::getTradeTs));
+        TradeSummary summary = calculateTradeSummary(trades);
+        List<TradeProfitResponse.TradeDetail> tradeList = toTradeDetailList(trades);
 
         return TradeProfitResponse.builder()
-                .realizedProfit(Math.round(realizedProfit))
-                .realizedPercent(Math.round(realizedPercent * 10) / 10.0)
-                .tradeList(toTradeDetailList(trades))
+                .realizedProfit(Math.round(summary.getRealizedProfit()))
+                .realizedPercent(Math.round(summary.getRealizedPercent() * 10) / 10.0)
+                .sellCount(summary.getSellCount())
+                .sellAmount(summary.getTotalSellAmount())
+                .buyCount(summary.getBuyCount())
+                .buyAmount(summary.getTotalBuyAmount())
+                .tradeList(tradeList)
                 .build();
     }
 

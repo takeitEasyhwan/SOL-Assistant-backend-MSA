@@ -127,7 +127,7 @@ public class UserService {
 
         return TradeMoneyResponse.builder()
                 .principal(userAssets.getPrincipal())
-                .totalBalance(currentMoney)
+                .totalBalance(userAssets.getTotalBalance())
                 .difference(diff)
                 .differenceRate(diffRate)
                 .build();

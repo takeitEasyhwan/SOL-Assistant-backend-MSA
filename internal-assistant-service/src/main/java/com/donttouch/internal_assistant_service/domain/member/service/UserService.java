@@ -179,6 +179,7 @@ public class UserService {
         trades.sort(Comparator.comparing(UserTrades::getTradeTs));
         TradeSummary summary = calculateTradeSummary(trades);
         List<TradeProfitResponse.TradeDetail> tradeList = toTradeDetailList(trades);
+        tradeList.sort(Comparator.comparing(TradeProfitResponse.TradeDetail::getTradeDate).reversed());
 
         return TradeProfitResponse.builder()
                 .realizedProfit(Math.round(summary.getRealizedProfit()))

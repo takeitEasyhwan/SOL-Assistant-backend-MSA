@@ -3,9 +3,9 @@
 
 ## 프로젝트 개요
 ### 문제 인식
-<img width="1037" height="582" alt="image" src="https://github.com/user-attachments/assets/f5e7e810-4010-4a75-840e-733a9c7fec97" />
+<img width="1096" height="616" alt="image" src="https://github.com/user-attachments/assets/3674f0ce-3d32-4313-af54-e668f7badd79" />
 
-<img width="1035" height="582" alt="image" src="https://github.com/user-attachments/assets/f82ac73a-b1b9-43d4-8ea7-26bfcf06932d" />
+<img width="1096" height="614" alt="image" src="https://github.com/user-attachments/assets/b0caec24-83c2-4265-8eae-635391e5af14" />
 
 ### 개발 기간
 2025.09.01. ~ 2025.10.24. (2개월) 
@@ -20,15 +20,15 @@
 
 ## 주요 개발 내용
 ### 아키텍처 도식도
-<img width="1036" height="580" alt="image" src="https://github.com/user-attachments/assets/88be6c29-0714-4830-b50b-0a300a2cad43" />
+<img width="1097" height="614" alt="image" src="https://github.com/user-attachments/assets/1795ef93-1f9b-4a9f-9716-7855429b31f5" />
 
-<img width="1035" height="581" alt="image" src="https://github.com/user-attachments/assets/91ad8b85-bf1e-4079-a48d-119f4c681cb1" />
+<img width="1098" height="614" alt="image" src="https://github.com/user-attachments/assets/0aec6fb6-add1-4955-a20d-7188239759a5" />
 
 ### ERD
-<img width="1112" height="773" alt="image" src="https://github.com/user-attachments/assets/9132dfc2-892a-4288-85aa-b4be68b1861d" />
+<img width="1110" height="767" alt="image" src="https://github.com/user-attachments/assets/71c24679-8a90-4c40-880e-22b6bd6e7100" />
 
 ### API 명세
-<img width="1034" height="579" alt="image" src="https://github.com/user-attachments/assets/afc3d471-48d3-4e18-bb58-f8816ea8c6dc" />
+<img width="1335" height="749" alt="image" src="https://github.com/user-attachments/assets/6861296b-bead-426e-a137-d9f1a216563b" />
 
 ### FE
 <div style="display:inline;">
@@ -56,28 +56,31 @@
 
 보유 종목의 주가 정보, 해당 섹터 뉴스, 같은 투자 성향고수의 관심, 매매신호 등을 한눈에 확인할 수 있는 통합 화면입니다.
 데이터를 실시간으로 캐싱해 빠른 로딩 속도를 유지하며, 사용자의 보유 자산 변동을 직관적으로 보여줍니다.
-<img width="900" src="https://github.com/user-attachments/assets/d1a4b348-4c0a-4292-ae6b-cf3b5d082d68" />
+<img width="1333" height="748" alt="image" src="https://github.com/user-attachments/assets/86a92ded-c0ef-48f5-b5b8-c281c97cfd68" />
+
 ### 2. 유저 행동 데이터 트래킹 
 
 사용자의 클릭, 체류 시간, 페이지 이동 패턴을 Redis → Kafka → RDS 파이프라인으로 수집합니다.
 이를 통해 투자 성향 및 관심 종목을 분석해 개인 맞춤형 콘텐츠 제공에 활용합니다.
+<img width="1332" height="747" alt="image" src="https://github.com/user-attachments/assets/1e7d89a3-a460-4dfb-befb-2ecf47221f0c" />
 
-<img width="900" src="https://github.com/user-attachments/assets/a34257a3-295a-4b56-819c-160f3f1cd883" />
 
 ### 3. 고수의Pick
 
 투자 성향 별 상위 투자자들의 종목 선택 데이터, 행동 데이터를 분석해 거래 추세와 포트폴리오 구성을 시각화합니다.
 유사한 투자 성향의 유저를 추천받거나 학습 자료로 활용할 수 있습니다.
-<img width="900" src="https://github.com/user-attachments/assets/2336eebe-273d-4b76-91a9-c6c30894d707" />
+<img width="1334" height="750" alt="image" src="https://github.com/user-attachments/assets/f895fdb2-bee9-4f2b-b2cb-76b3a3980e9a" />
+
 ### 4. 유사 차트
 
 과거 차트 데이터를 기반으로 현재 종목과 패턴이 유사한 종목을 추천합니다.
 이동평균선, RSI, ROC, 볼린저 밴드 등을 종합적으로 비교해 시각적 학습 효과를 높였습니다.
-<img width="900" src="https://github.com/user-attachments/assets/1604ade6-104a-4bdf-883e-45f26ed039f5" />
+<img width="1332" height="744" alt="image" src="https://github.com/user-attachments/assets/2f4298d5-1e0c-4aaa-b41a-2b48118bfc68" />
+
 ### 5. 위험종목 / 정리종목 시각화
 
 보유 종목의 위험도를 한눈에 확인하고 즉시 대응할 수 있도록 시각화된 경고 시스템을 제공합니다.
-<img width="900" src="https://github.com/user-attachments/assets/46f33fae-fc95-47a3-a06c-b9d8d543907a" />
+<img width="1333" height="748" alt="image" src="https://github.com/user-attachments/assets/48f4d00b-30d9-4126-a06b-cf6cf838e16a" />
 
 ### 시연영상
 

@@ -81,6 +81,3 @@
 
 보유 종목의 위험도를 한눈에 확인하고 즉시 대응할 수 있도록 시각화된 경고 시스템을 제공합니다.
 <img width="1333" height="748" alt="image" src="https://github.com/user-attachments/assets/48f4d00b-30d9-4126-a06b-cf6cf838e16a" />
-
-### 시연영상
-

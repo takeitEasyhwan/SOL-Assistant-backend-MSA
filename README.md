@@ -3,9 +3,9 @@
 
 ## 프로젝트 개요
 ### 문제 인식
-<img width="1096" height="616" alt="image" src="https://github.com/user-attachments/assets/3674f0ce-3d32-4313-af54-e668f7badd79" />
+<img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/3674f0ce-3d32-4313-af54-e668f7badd79" />
 
-<img width="1096" height="614" alt="image" src="https://github.com/user-attachments/assets/b0caec24-83c2-4265-8eae-635391e5af14" />
+<img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/b0caec24-83c2-4265-8eae-635391e5af14" />
 
 ### 개발 기간
 2025.09.01. ~ 2025.10.24. (2개월) 

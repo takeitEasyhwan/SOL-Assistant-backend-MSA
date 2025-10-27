@@ -16,7 +16,7 @@
 |**이지환**|**곽예경**|**조정현**|**한정우**|
 |[@takeitEasyhwan](https://github.com/takeitEasyhwan)|[@kyun9-cloud](https://github.com/kyun9-cloud)|[@CISXO](https://github.com/CISXO)|[@hanuuuuU](https://github.com/hanuuuuU)|
 |PM / BE|FE|BE / Infra|FE|
-| MSA-external-service 파트(뉴스, 차트) 제작<br>MSA-internal-service 파트(매매 기록, 사용자 대시보드) 제작 |       디자인<br>대시보드 페이지 제작<br>뉴스, 섹터 페이지 제작      | MSA 인프라 설계<br>MSA-internal-service 파트(고수 데이터, 로그인) 제작 | 행동 데이터 트래킹 파트 제작<br>대시보드 페이지 제작<br>고수 히트맵 페이지 제작 |
+| MSA-external-service 파트(뉴스, 차트) 제작<br>MSA-internal-service 파트(매매 기록, 사용자 대시보드) 제작 |       디자인<br>대시보드 페이지 제작<br>뉴스, 섹터 페이지 제작      | MSA 인프라 설계<br> MSA-internal-service 파트(고수 데이터, 로그인 API) 설계<br> MSA 공통 모듈 및 프로젝트 구성<br> Kafka, Redis 대용량 행동 데이터 처리 | 행동 데이터 트래킹 파트 제작<br>대시보드 페이지 제작<br>고수 히트맵 페이지 제작 |
 
 ## 주요 개발 내용
 ### 아키텍처 도식도

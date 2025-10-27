@@ -21,13 +21,15 @@
 ## 주요 개발 내용
 ### 아키텍처 도식도
 <img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/1795ef93-1f9b-4a9f-9716-7855429b31f5" />
-본 프로젝트의 인프라는 프론트엔드 서버 1대와 백엔드 서버 3대로 구성되어 있습니다.
-백엔드 서버는 기능별 도메인에 따라 분리된 MSA(Microservices Architecture) 구조로, 각 서비스가 독립적으로 배포되고 운영될 수 있습니다.
+본 프로젝트의 인프라는 프론트엔드 서버 1대와 백엔드 서버 3대로 구성되어 있습니다. 백엔드 서버는 기능별 도메인에 따라 분리된 MSA(Microservices Architecture) 구조로, 각 서비스는 해당하는 브랜치에 push가 이루어지면 해당하는 모듈만 무중단 배포가 이루어집니다. 각 서비스가 독립적으로 배포되고 운영될 수 있습니다.
 
 <img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/0aec6fb6-add1-4955-a20d-7188239759a5" />
 아키텍처 우측에서는 사용자 트래픽 흐름도를 통해 요청이 프론트엔드를 거쳐 각 도메인 서비스로 전달되는 과정을 확인할 수 있습니다.
 또한, 배포 파이프라인 시각화를 통해 각 서비스가 개별 배포 그룹을 가지고 무중단 배포(Blue-Green / Rolling 방식) 를 수행함을 확인할 수 있습니다.
 이를 통해 배포 시 서비스 간 장애 격리와 안정적인 운영이 가능하도록 설계하였습니다.
+
+### 무중단 배포 과정 흐름
+<img width="506" height="592" alt="image" src="https://github.com/user-attachments/assets/d5420812-1ad6-4cde-998a-253da27076f4" />
 
 ### ERD
 <img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/71c24679-8a90-4c40-880e-22b6bd6e7100" />
@@ -47,11 +49,18 @@
 <div style="display:inline;">
 <img src="https://img.shields.io/badge/Spring-6DB33F?style=flat-square&logo=spring&logoColor=white"/>
 <img src="https://img.shields.io/badge/MariaDB-003545?style=flat-square&logo=mariadb&logoColor=white"/>
+<img src="https://img.shields.io/badge/JPA-FF6F61?style=flat-square&logo=java&logoColor=white"/>
 </div>
 
 ### Infra / DevOps
 <div style="display:inline;">
 <img src="https://img.shields.io/badge/Amazon AWS-FF9900?style=flat-square&logo=amazonaws&logoColor=white"/>
+<img src="https://img.shields.io/badge/AWS RDS-527FFF?style=flat-square&logo=amazonaws&logoColor=white"/>
+<img src="https://img.shields.io/badge/AWS EC2-FF9900?style=flat-square&logo=amazonaws&logoColor=white"/>
+<img src="https://img.shields.io/badge/AWS CodeDeploy-FF9900?style=flat-square&logo=amazonaws&logoColor=white"/>
+<img src="https://img.shields.io/badge/GitHub Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white"/>
+<img src="https://img.shields.io/badge/Amazon S3-569A31?style=flat-square&logo=amazons3&logoColor=white"/>
+<img src="https://img.shields.io/badge/Nginx-009639?style=flat-square&logo=nginx&logoColor=white"/>
 <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white"/>
 <img src="https://img.shields.io/badge/Apache Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white"/>
 </div>
@@ -86,3 +95,7 @@
 
 보유 종목의 위험도를 한눈에 확인하고 즉시 대응할 수 있도록 시각화된 경고 시스템을 제공합니다.
 <img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/48f4d00b-30d9-4126-a06b-cf6cf838e16a" />
+
+### 시연영상
+https://github.com/user-attachments/assets/13f8886d-d4c7-4d6e-85a2-743cd55d15cc
+
